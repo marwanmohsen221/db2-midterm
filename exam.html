@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ar">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DB2 Midterm Practice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of question cards, a sticky number strip on top and a sticky score bar at the bottom */
+:root {
+  --bg: #F2F5F6; --surface: #FFFFFF; --ink: #142028; --muted: #5A6872; --line: #D7DFE3;
+  --accent: #0E6873; --accent-bg: #E0EFF0; --accent-ink: #FFFFFF;
+  --ok: #1B7542; --ok-bg: #E3F2E8; --bad: #B3261E; --bad-bg: #FBE8E6; --flag: #A86200; --flag-bg: #FFF1D9;
+  --f-ar: "IBM Plex Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif;
+  --f-en: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1519; --surface: #162026; --ink: #E4EBEE; --muted: #93A2AB; --line: #29363D;
+  --accent: #52B5C0; --accent-bg: #14343A; --accent-ink: #062226;
+  --ok: #55C487; --ok-bg: #14301F; --bad: #F2766B; --bad-bg: #3A1917; --flag: #F2B44F; --flag-bg: #382810; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1519; --surface: #162026; --ink: #E4EBEE; --muted: #93A2AB; --line: #29363D;
+  --accent: #52B5C0; --accent-bg: #14343A; --accent-ink: #062226;
+  --ok: #55C487; --ok-bg: #14301F; --bad: #F2766B; --bad-bg: #3A1917; --flag: #F2B44F; --flag-bg: #382810; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ar); font-size: 15px; line-height: 1.7; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 780px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 120px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--accent-bg); padding: 1px 5px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+
+header h1 { font-size: 26px; line-height: 1.3; margin: 0; font-weight: 700; text-wrap: balance; }
+header h1 span { font-family: var(--f-en); color: var(--accent); }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.tab { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 16px; font-weight: 600; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tab .cnt { font-family: var(--f-en); font-variant-numeric: tabular-nums; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 7px 14px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.ghost { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 14px; }
+.ghost[aria-pressed="true"] { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
+.ghost.warn { border-color: var(--bad); color: var(--bad); }
+
+.navstrip { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; margin-top: 12px; border-bottom: 1px solid var(--line); }
+.nav { display: flex; flex-wrap: wrap; gap: 5px; direction: rtl; }
+.nav button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-en); font-size: 13px; font-variant-numeric: tabular-nums; position: relative; padding: 0; }
+.nav button.ans { background: var(--accent-bg); border-color: var(--accent); }
+.nav button.ok { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.nav button.bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.nav button.flagged::after { content: ""; position: absolute; top: -3px; left: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--flag); border: 2px solid var(--bg); }
+
+.result { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: center; }
+.result .big { font-family: var(--f-en); font-size: 44px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; grid-row: span 2; }
+.result .big small { font-size: 20px; color: var(--muted); }
+.result .msg { font-weight: 600; font-size: 17px; }
+.result .parts { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: 14px; }
+.result .parts b { color: var(--ink); font-family: var(--f-en); font-variant-numeric: tabular-nums; }
+
+.part-h { margin: 28px 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: .02em; display: flex; gap: 8px; align-items: baseline; }
+.part-h b { color: var(--ink); font-size: 17px; }
+.list { display: flex; flex-direction: column; gap: 14px; }
+
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; scroll-margin-top: 120px; }
+.q.is-flag { border-color: var(--flag); box-shadow: inset -4px 0 0 var(--flag); }
+.qhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.num { font-family: var(--f-en); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip { font-family: var(--f-mono); font-size: 11.5px; padding: 1px 8px; border-radius: 6px; background: var(--accent-bg); color: var(--accent); direction: ltr; }
+.flagbtn { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 3px 10px; font-size: 13px; color: var(--muted); }
+.flagbtn svg { width: 14px; height: 14px; }
+.flagbtn[aria-pressed="true"] { border-color: var(--flag); color: var(--flag); background: var(--flag-bg); }
+.qtext { font-family: var(--f-en); font-size: 16px; font-weight: 500; line-height: 1.55; margin: 12px 0 12px; text-align: left; }
+.opts { display: grid; gap: 8px; }
+.opts.tf { grid-template-columns: 1fr 1fr; }
+.opt { display: flex; align-items: flex-start; gap: 10px; text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 9px 12px; font-family: var(--f-en); font-size: 14.5px; line-height: 1.5; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt .let { flex: none; width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-weight: 600; font-size: 13px; border: 1px solid var(--line); background: var(--surface); }
+.opt .ot { flex: 1; min-width: 0; padding-top: 1px; }
+.opt .mk { flex: none; font-weight: 700; padding-top: 1px; }
+.opt.sel { border-color: var(--accent); background: var(--accent-bg); }
+.opt.sel .let { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.opt.ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.ok .let { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.opt.ok .mk { color: var(--ok); }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); }
+.opt.bad .let { background: var(--bad); color: var(--surface); border-color: var(--bad); }
+.opt.bad .mk { color: var(--bad); }
+.opt.dim { opacity: .6; }
+.opt:disabled { cursor: default; color: var(--ink); }
+
+.rev { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.verdict { font-weight: 700; display: inline-flex; gap: 6px; align-items: center; }
+.verdict.ok { color: var(--ok); } .verdict.bad { color: var(--bad); } .verdict.skip { color: var(--flag); }
+.rev h4 { margin: 0; font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+.rev p { margin: 2px 0 0; max-width: 68ch; }
+.answer { font-family: var(--f-en); direction: ltr; text-align: left; background: var(--ok-bg); color: var(--ok); border-radius: 8px; padding: 6px 10px; font-weight: 600; }
+.why { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.why li { display: flex; gap: 8px; align-items: flex-start; padding: 6px 10px; border-radius: 8px; background: var(--bg); }
+.why li.ok { background: var(--ok-bg); }
+.why li .l { flex: none; font-family: var(--f-en); font-weight: 600; min-width: 18px; }
+.why li.ok .l { color: var(--ok); } .why li.no .l { color: var(--bad); }
+.deep { background: var(--flag-bg); border-radius: 10px; padding: 8px 12px; }
+.deep summary { cursor: pointer; font-weight: 600; color: var(--flag); }
+.deep p { margin-top: 6px; }
+
+.empty { text-align: center; color: var(--muted); padding: 48px 12px; border: 1px dashed var(--line); border-radius: 14px; margin-top: 20px; }
+
+.bar { position: fixed; inset: auto 0 0 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.bar-in { max-width: 780px; margin: 0 auto; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.prog { flex: 1; min-width: 160px; }
+.prog .t { font-size: 13px; color: var(--muted); }
+.prog .t b { color: var(--ink); font-family: var(--f-en); font-variant-numeric: tabular-nums; }
+.track { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+.track i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .25s; }
+.primary { border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; border-radius: 10px; padding: 10px 18px; }
+
+@media (max-width: 520px) {
+  header h1 { font-size: 22px; }
+  .opts.tf { grid-template-columns: 1fr; }
+  .result { grid-template-columns: 1fr; }
+  .result .big { grid-row: auto; }
+  .q { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap" dir="rtl">
+  <header>
+    <h1>امتحان تجريبي <span>Database Systems 2</span></h1>
+    <p>Chapter 1: Transaction Management &amp; Concurrency Control — Chapter 2: Performance Tuning &amp; Query Optimization. نموذجين، كل نموذج 15 اختيار من متعدد و 10 صح وغلط زي شكل الميدترم.</p>
+  </header>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="controls" id="controls"></div>
+  <div id="result"></div>
+  <div class="navstrip"><div class="nav" id="nav"></div></div>
+  <main id="main"></main>
+</div>
+<div class="bar"><div class="bar-in" id="bar"></div></div>
+
+<script>
+const Q = [
+/* ================= MODEL 1 — MCQ ================= */
+{id:'m1-01', m:1, ch:1, topic:'Transactions', q:`A transaction is best defined as:`,
+ o:[`A single SELECT statement that reads data`,`A logical unit of work that must be either entirely completed or aborted`,`Any SQL command that changes the structure of a table`,`A group of SQL statements that may be partially completed if an error occurs`], a:1,
+ ex:`الـ <b>Transaction</b> هي <b>logical unit of work</b>، يعني مجموعة عمليات بنتعامل معاها كأنها حاجة واحدة: يا تتنفذ كلها (entirely completed) يا تتلغي كلها (aborted). الـ transaction الناجحة بتنقل الـ database من <b>consistent state</b> لـ consistent state تانية، والـ consistent state هي اللي كل الـ data integrity constraints فيها متحققة. ومعظم الـ transactions الحقيقية بتتكون من 2 database requests أو أكتر، وفيها على الأقل read و write.`,
+ why:[`غلط: صحيح إن SELECT لوحدها تعتبر transaction لأنها بتعمل access للـ database، لكن ده مثال مش التعريف. الـ transaction ممكن تكون كذا statement.`,`صح: ده التعريف الحرفي من السلايدز.`,`غلط: تغيير structure الجدول ده DDL زي ALTER TABLE، والـ transaction مش معناها كده.`,`غلط: كلمة partially هي الفخ. الـ transaction مينفعش تتنفذ جزئيًا، ده ضد الـ Atomicity.`],
+ deep:`مثال السلايدز: بيع منتج لعميل بالآجل. لازم (1) تكتب invoice جديدة، (2) تقلل الـ quantity on hand في الـ inventory، (3) تحدّث account transactions، (4) تحدّث customer balance. لو أول 3 statements اتنفذوا والكهربا قطعت قبل الباقي، الـ database تبقى inconsistent: فاتورة مكتوبة والمخزون نقص، لكن رصيد العميل ما اتغيرش. عشان كده الخطوات كلها لازم تبقى transaction واحدة تنتهي بـ <code>COMMIT</code>.`},
+
+{id:'m1-02', m:1, ch:1, topic:'ACID', q:`Which transaction property requires that ALL operations of a transaction be completed, or else the entire transaction is aborted?`,
+ o:[`Atomicity`,`Consistency`,`Isolation`,`Durability`], a:0,
+ ex:`الـ <b>Atomicity</b> جاية من atom، يعني حاجة مش بتتقسم. الـ transaction كلها وحدة واحدة: <b>all or nothing</b>. لو أي operation فشلت، الـ transaction كلها بتتعمل لها abort والتغييرات بترجع (rollback).`,
+ why:[`صح: all operations must be completed or else the entire transaction is aborted = Atomicity.`,`غلط: الـ Consistency معناها permanence of database's consistent state، يعني الـ database تفضل في حالة سليمة. مش موضوع all-or-nothing.`,`غلط: الـ Isolation معناها إن الداتا اللي transaction بتستخدمها متتستخدمش من transaction تانية لحد ما الأولى تخلص.`,`غلط: الـ Durability معناها إن بعد الـ COMMIT التغييرات مش بتتلغي.`],
+ deep:`احفظ ACID كده: <b>A</b> = All or nothing، <b>C</b> = Consistent state، <b>I</b> = Isolated (كل transaction في حالها)، <b>D</b> = Done for good (بعد الـ commit خلاص). والسلايدز بتضيف خاصية خامسة: <b>Serializability</b> = التنفيذ المتزامن (concurrent) لكذا transaction يدي نفس النتيجة كأنهم اتنفذوا ورا بعض. والـ Database Recovery Management كلها مبنية على الـ atomic transaction property.`},
+
+{id:'m1-03', m:1, ch:1, topic:'ACID', q:`"Data used during a transaction cannot be used by a second transaction until the first is completed." This describes:`,
+ o:[`Durability`,`Serializability`,`Isolation`,`Atomicity`], a:2,
+ ex:`الـ <b>Isolation</b> معناها إن كل transaction شغالة كأنها لوحدها. الداتا اللي T1 بتستخدمها متتلمسش من T2 لحد ما T1 تخلص. ومشكلة الـ <b>uncommitted data</b> (T2 تقرا داتا T1 لسه ما عملتلهاش commit) بتعتبر violation مباشر للـ Isolation.`,
+ why:[`غلط: Durability = بعد الـ commit التغيير دائم ومينفعش يتلغي.`,`غلط: Serializability = النتيجة النهائية للتنفيذ المتزامن تساوي نتيجة التنفيذ الـ serial. قريبة في المعنى لكن مش ده تعريفها.`,`صح: ده تعريف الـ Isolation بالنص.`,`غلط: Atomicity = all or nothing.`],
+ deep:`الفرق بين Isolation و Serializability بيتسأل كتير. الـ Isolation بتتكلم عن الداتا نفسها: محدش يلمس داتا transaction لسه شغالة. أما الـ Serializability بتتكلم عن الـ schedule كله: الترتيب المتداخل (interleaved) يدي نفس نتيجة الترتيب المتتالي (serial). الـ <b>scheduler</b> هو اللي بيضمن الاتنين.`},
+
+{id:'m1-04', m:1, ch:1, topic:'SQL Transactions', q:`According to ANSI standards, transaction support is provided by which two SQL statements?`,
+ o:[`BEGIN and END`,`COMMIT and ROLLBACK`,`SAVE and UNDO`,`GRANT and REVOKE`], a:1,
+ ex:`الـ ANSI حددت إن الـ transaction support بيتعمل بـ statement-ين: <code>COMMIT</code> بيحفظ كل التغييرات بشكل دائم، و <code>ROLLBACK</code> بيلغي كل التغييرات ويرجّع الـ database للحالة اللي كانت عليها قبل الـ transaction.`,
+ why:[`غلط: BEGIN (أو SET) TRANSACTION بتستخدمها بعض الـ implementations عشان تعلن بداية transaction جديدة، لكنها مش الـ two statements اللي ANSI حددتهم.`,`صح: COMMIT و ROLLBACK.`,`غلط: مفيش SQL statements اسمها SAVE و UNDO للـ transactions.`,`غلط: GRANT و REVOKE دول DCL خاصين بالصلاحيات (privileges) مش بالـ transactions.`],
+ deep:`الـ transaction sequence بتفضل مستمرة لحد ما يحصل واحد من 4: (1) <code>COMMIT</code>، (2) <code>ROLLBACK</code>، (3) البرنامج يوصل لآخره بنجاح، (4) البرنامج يقع فجأة (abnormally terminated) وده يساوي ROLLBACK. مثال السلايدز: عميل اشترى وحدتين من منتج 1558-QW1 بسعر 43.99 يعني 87.98: <code>UPDATE PRODUCT SET PROD_QOH = PROD_QOH - 2</code> بعدها <code>UPDATE CUSTOMER SET CUST_BALANCE = CUST_BALANCE + 87.98</code> بعدها <code>COMMIT</code>.`},
+
+{id:'m1-05', m:1, ch:1, topic:'SQL Transactions', q:`If a program is abnormally terminated in the middle of a transaction, this action is equivalent to:`,
+ o:[`COMMIT`,`ROLLBACK`,`CHECKPOINT`,`Lock escalation`], a:1,
+ ex:`لما البرنامج يقع فجأة (<b>abnormally terminated</b>) في نص transaction، الـ DBMS بيعامله كأنه <code>ROLLBACK</code>: بيلغي كل التغييرات اللي حصلت في الـ transaction دي عشان يحافظ على الـ Atomicity.`,
+ why:[`غلط: لو عمل commit كان هيحفظ transaction ناقصة، والـ database هتبقى inconsistent.`,`صح: abnormal termination = ROLLBACK.`,`غلط: الـ checkpoint عملية بيعملها الـ DBMS لوحده عشان يكتب الـ buffers على الـ disk، ملهاش علاقة بوقوع البرنامج.`,`غلط: الـ lock escalation هو تحويل row-level locks لـ page-level lock. ملوش علاقة هنا.`],
+ deep:`فرّق بين حالتين: <b>end of program successfully reached</b> = نهاية طبيعية والتغييرات تتحفظ. <b>abnormal termination</b> = ROLLBACK. والـ DBMS بيعرف يعمل rollback إزاي؟ من الـ <b>transaction log</b> اللي فيه الـ before values لكل field اتعدل.`},
+
+{id:'m1-06', m:1, ch:1, topic:'Transaction Log', q:`Which of the following is NOT stored in the transaction log?`,
+ o:[`A record for the beginning of the transaction`,`The "before" and "after" values for updated fields`,`Pointers to the previous and next log entries for the same transaction`,`The optimized execution plan of the query`], a:3,
+ ex:`الـ <b>transaction log</b> بيخزن: (1) record لبداية الـ transaction. (2) لكل component: نوع الـ operation (update / delete / insert)، أسماء الـ objects المتأثرة، الـ before و after values، و pointers للـ entry اللي قبل واللي بعد لنفس الـ transaction. (3) نهاية الـ transaction (COMMIT). الـ execution plan مش منهم، ده مكانه الـ <b>SQL cache</b> في Chapter 2.`,
+ why:[`غلط لأنه موجود فعلًا: الـ log بيسجل بداية الـ transaction.`,`غلط لأنه موجود فعلًا: الـ before values بتستخدم في الـ undo/rollback، والـ after values في الـ redo.`,`غلط لأنه موجود فعلًا: الـ pointers بتربط entries نفس الـ transaction ببعض، وبتستخدم في الـ recovery عشان توصل لبداية الـ transaction.`,`صح لأنه مش موجود: الـ access/execution plan بيتحط في الـ SQL cache، مش في الـ transaction log.`],
+ deep:`الـ log بيتستخدم في الـ recovery لما يحصل ROLLBACK، أو abnormal termination، أو system failure زي network discrepancy أو disk crash. صحيح إنه بيزوّد الـ processing overhead، لكن القدرة على استرجاع database بايظة تستاهل التمن. ولو حصل failure، الـ DBMS بيدور في الـ log على الـ uncommitted transactions ويرجعها، وبيكتب الـ committed اللي ما اتكتبتش فعليًا على الـ disk. الـ committed transactions <b>مش</b> بتتعمل لها rollback. (Oracle مثلًا: rolls back uncommitted و rolls forward committed.)`},
+
+{id:'m1-07', m:1, ch:1, topic:'Concurrency', q:`Two concurrent transactions update the same data element, and one of the updates is overwritten by the other. This problem is called:`,
+ o:[`Lost update`,`Uncommitted data`,`Inconsistent retrievals`,`Deadlock`], a:0,
+ ex:`الـ <b>Lost update</b>: T1 و T2 بيقروا نفس القيمة (مثلًا PROD_QOH = 35) قبل ما أي واحدة تعمل commit. T1 تزود 100 وتكتب 135، و T2 تنقص 30 من القيمة القديمة 35 وتكتب 5. النتيجة 5 بدل 105، وتحديث T1 ضاع.`,
+ why:[`صح: one of the updates is lost by being overwritten = lost update.`,`غلط: الـ uncommitted data معناها T2 قرت داتا T1 وبعدين T1 عملت ROLLBACK.`,`غلط: الـ inconsistent retrievals لما transaction تقرا بعض الداتا قبل التعديل وبعضها بعده (زي SUM).`,`غلط: الـ deadlock إن transaction-ين مستنيين بعض للأبد، مش overwrite لقيمة.`],
+ deep:`في السلايدز: الـ serial execution الصح بيدي PROD_QOH = <b>105</b> (35 + 100 − 30). المشكلة بتحصل لما T2 تقرا القيمة قبل ما T1 تعمل commit. الحل هو الـ locks: مع الـ binary lock مثلًا القفل مش بيتفك غير بعد ما الـ WRITE يخلص، فـ T2 مش هتقرا PROD_QOH غير بعد ما يتحدث صح. احفظ المشاكل التلاتة: <b>Lost updates – Uncommitted data – Inconsistent retrievals</b>.`},
+
+{id:'m1-08', m:1, ch:1, topic:'Concurrency', q:`Inconsistent retrievals occur when:`,
+ o:[`A transaction reads some data before they are changed and other data after they are changed`,`Two transactions write to the same data item and one write overwrites the other`,`A transaction is rolled back after another transaction has read its uncommitted data`,`Two transactions wait indefinitely for each other to unlock data`], a:0,
+ ex:`الـ <b>Inconsistent retrievals</b>: T1 بتعمل access على داتا (زي إنها تحسب SUM لكميات المنتجات)، وفي نفس الوقت T2 بتعدّل الداتا دي، فـ T1 تقرا جزء قبل التعديل وجزء بعده، والنتيجة تطلع inconsistent.`,
+ why:[`صح: ده التعريف من السلايدز.`,`غلط: ده وصف الـ lost update.`,`غلط: ده وصف الـ uncommitted data.`,`غلط: ده تعريف الـ deadlock.`],
+ deep:`مثال السلايدز: T1 بتحسب SUM(PROD_QOH) و T2 بتصلح غلطة: تزود 1546-QQ2 بـ 10 وتنقص 1558-QQ1 بـ 10. T1 قرت 1546-QQ2 بعد التعديل (25) فالمجموع وصل 65، وقرت 1558-QQ1 قبل التعديل (23 بدل 13) فبقى 65 + 23. المجموع النهائي طلع <b>102 بدل 92</b>. الفرق 10 بالظبط، وده التعديل اللي اتحسب نصه بس.`},
+
+{id:'m1-09', m:1, ch:1, topic:'Lock Granularity', q:`Which lock granularity level is currently the most frequently used locking method for multi-user DBMSs?`,
+ o:[`Database-level lock`,`Table-level lock`,`Page-level lock`,`Field-level lock`], a:2,
+ ex:`الـ <b>Page-level lock</b> بيقفل disk page كاملة (الـ page = diskblock، section من الـ disk ليها عنوان مباشر زي 4K أو 8K أو 16K). طالما transaction-ين مش بيستخدموا نفس الـ page مفيش انتظار. وده حاليًا الأكثر استخدامًا في الـ multi-user DBMSs.`,
+ why:[`غلط: database-level بيقفل الـ database كلها. مناسب للـ batch systems بس، مش للـ multi-user.`,`غلط: table-level بيقفل الجدول كله حتى لو الـ transactions عايزين rows مختلفة. مش مناسب للـ multi-user.`,`صح: page-level = currently the most frequently used.`,`غلط: field-level هو الأكثر flexible لكن الـ overhead بتاعه عالي جدًا، فنادرًا ما بيتعمل له implement.`],
+ deep:`رتّب الـ granularity من الأكبر للأصغر: <b>Database → Table → Page → Row → Field</b>. كل ما تصغر: concurrency أعلى و overhead أعلى. ملاحظات: الجدول ممكن يتوزع على كذا page، والـ page ممكن يكون فيها rows من كذا جدول. لو عايز تكتب 73 byte في page حجمها 4K، الـ page كلها لازم تتقري من الـ disk وتتعدل في الـ memory وتتكتب تاني. والـ row-level لو اتطلب منه locks كتير على نفس الـ page بيعمل <b>escalation</b> لـ page-level lock أوتوماتيك.`},
+
+{id:'m1-10', m:1, ch:2, topic:'Query Processing', q:`The DBMS processes a query in three phases. They are:`,
+ o:[`Parsing, execution, and fetching`,`Read, validation, and write`,`Growing, locked point, and shrinking`,`Compiling, linking, and loading`], a:0,
+ ex:`أي query بتعدي على 3 phases: <b>Parsing</b>: الـ DBMS يحلل الـ query ويختار أكفأ access/execution plan. <b>Execution</b>: ينفذ الـ query بالـ plan اللي اختاره. <b>Fetching</b>: يجيب الداتا ويبعت الـ result set للـ client.`,
+ why:[`صح: parsing, execution, fetching.`,`غلط: دي phases الـ optimistic concurrency control من Chapter 1.`,`غلط: دي مراحل الـ two-phase locking.`,`غلط: دي مراحل بناء البرامج، ملهاش علاقة بمعالجة الـ SQL.`],
+ deep:`في الـ <b>Parsing</b>: الـ query بتتعمل لها validation للـ syntax، وvalidation ضد الـ data dictionary (أسماء الجداول والأعمدة صح، والمستخدم عنده access rights)، وبتتحلل لـ components، وتتعمل optimize، وتتجهز للتنفيذ. الـ DBMS بيدور الأول في الـ SQL cache لو فيه access plan جاهز يستخدمه. في الـ <b>Execution</b>: كل الـ I/O operations تتنفذ، الـ locks تتاخد، الداتا تتحط في الـ data cache، وأوامر الـ transaction management تتنفذ. في الـ <b>Fetching</b>: الـ rows ترجع للـ client، وممكن يستخدم temporary table space. وخلي بالك: DDL زي CREATE TABLE بيحدث الـ data dictionary، أما DML (SELECT / INSERT / UPDATE / DELETE) بيتعامل أساسًا مع end-user data.`},
+
+{id:'m1-11', m:1, ch:2, topic:'Indexes', q:`Which index type is the default and most common type, used mainly in tables in which column values repeat a relatively small number of times?`,
+ o:[`Hash index`,`B-tree index`,`Bitmap index`,`Composite index`], a:1,
+ ex:`الـ <b>B-tree index</b> هو الـ default والأكثر شيوعًا. بيستخدم في الجداول اللي قيم العمود فيها بتتكرر عدد مرات قليل.`,
+ why:[`غلط: الـ hash index كويس للـ lookup السريع بـ equality conditions، زي LNAME = 'Scott'.`,`صح: B-tree = default and most common.`,`غلط: الـ bitmap للـ data warehouse: جداول rows كتيرة جدًا وقيم قليلة بتتكرر كتير.`,`غلط: composite index (index على أكتر من عمود) مش من الأنواع التلاتة اللي في السلايدز.`],
+ deep:`الأنواع التلاتة: <b>Hash</b> لـ equality lookups. <b>B-tree</b> الـ default، القيم بتتكرر مرات قليلة. <b>Bitmap</b> للـ data warehouse، rows كتير جدًا وقيم قليلة بتتكرر كتير (زي gender أو region)، وبياخد مساحة أقل لأنه بيخزن bits مش bytes. والـ DBMS هو اللي بيحدد أنسب نوع. ومرتبط بيها مصطلح <b>data sparsity</b> = عدد القيم المختلفة اللي العمود ممكن ياخدها.`},
+
+{id:'m1-12', m:1, ch:2, topic:'Performance Tuning', q:`In general, the performance of a typical DBMS is constrained by three main factors:`,
+ o:[`CPU processing power, available primary memory (RAM), and input/output (hard disk and network) throughput`,`Number of users, number of tables, and number of indexes`,`Network speed, screen resolution, and printer speed`,`Query length, table name length, and number of columns`], a:0,
+ ex:`حسب السلايدز، أداء الـ DBMS متقيد بـ 3 عوامل: <b>CPU processing power</b>، و <b>available primary memory (RAM)</b>، و <b>I/O throughput</b> (hard disk و network). والـ fine-tuning محتاج <b>holistic approach</b>: تراجع كل العوامل عشان كل واحد يشتغل بأفضل مستوى ومفيش bottleneck.`,
+ why:[`صح: CPU و RAM و I/O.`,`غلط: دي حاجات ممكن تأثر، لكنها مش الـ three main factors.`,`غلط: الشاشة والطابعة ملهمش علاقة بأداء الـ DBMS.`,`غلط: طول الأسماء مش عامل أداء.`],
+ deep:`الـ <b>Database performance tuning</b> = مجموعة أنشطة وإجراءات هدفها تقليل الـ response time، يعني الـ query تتنفذ في أقل وقت. والـ <b>query processing bottlenecks</b> الخمسة: CPU – RAM – Hard disk – Network – Application code. وأهم جملة: Good database performance starts with good database design. مفيش tuning يخلي database متصممة غلط تشتغل زي واحدة متصممة صح.`},
+
+{id:'m1-13', m:1, ch:2, topic:'DBMS Architecture', q:`The SQL cache (procedure cache) stores:`,
+ o:[`The SQL statements exactly as written by the end user`,`A "processed" version of the most recently executed SQL statements, ready for execution`,`The most recently accessed data blocks`,`The before and after values of updated rows`], a:1,
+ ex:`الـ <b>SQL cache</b> (أو procedure cache) هو shared reserved memory بيخزن آخر SQL statements أو PL/SQL procedures اتنفذت (بما فيها triggers و functions)، لكن مش بالشكل اللي المستخدم كتبه. بيخزن <b>processed version</b> جاهزة للتنفيذ.`,
+ why:[`غلط: السلايدز بتقول صراحة إن الـ SQL cache does NOT store the SQL written by the end user.`,`صح.`,`غلط: ده الـ data cache (buffer cache).`,`غلط: ده الـ transaction log.`],
+ deep:`قارن: <b>Data cache / buffer cache</b> فيه آخر data blocks اتقرت، ومعاها system catalog data ومحتوى الـ indexes. <b>SQL cache / procedure cache</b> فيه processed SQL جاهز للتنفيذ. فايدة الـ SQL cache: لما نفس الـ query تيجي تاني، الـ DBMS يعيد استخدام الـ access plan بدل ما يعمل optimization من الأول.`},
+
+{id:'m1-14', m:1, ch:2, topic:'DBMS Architecture', q:`Most performance-tuning activities focus on:`,
+ o:[`Creating an index on every column`,`Minimizing the number of I/O operations`,`Increasing the size of the transaction log`,`Reducing the number of database users`], a:1,
+ ex:`الـ I/O operations (القراية من الـ data files على الـ disk) <b>أبطأ بكتير</b> من القراية من الـ data cache في الـ RAM، فأغلب الـ performance tuning بيركز على <b>minimizing I/O operations</b>.`,
+ why:[`غلط: الـ indexes الكتير بتبطّأ INSERT و UPDATE و DELETE، ومينفعش تعمل index على كل عمود.`,`صح.`,`غلط: الـ log مش هدف الـ tuning.`,`غلط: تقليل المستخدمين مش tuning.`],
+ deep:`معلومة بتيجي في الامتحان: الـ I/O disk read بيجيب <b>physical disk block كامل</b> (4K أو 8K أو 16K أو 32K أو 64K أو أكبر) فيه rows كتير، حتى لو انت محتاج attribute واحد من row واحد. والـ I/O request = low-level data access operation بيقرا أو يكتب من وإلى devices زي الـ memory والـ disks والـ video والـ printers. والـ data files بتكبر بزيادات محددة اسمها <b>extents</b>، وبتتجمع في <b>table spaces</b> أو file groups.`},
+
+{id:'m1-15', m:1, ch:2, topic:'Client vs Server', q:`On the client side, the activities required to generate a SQL query that returns the correct answer in the least amount of time, using the minimum resources at the server end, are called:`,
+ o:[`DBMS performance tuning`,`SQL performance tuning`,`Query formulation`,`Database recovery`], a:1,
+ ex:`الـ tuning بيتقسم لجزئين: <b>Client side = SQL performance tuning</b>: تكتب query صح وسريعة وبأقل resources على السيرفر. <b>Server side = DBMS performance tuning</b>: تظبط بيئة الـ DBMS عشان ترد على الـ clients بأسرع شكل وبأحسن استخدام للـ resources.`,
+ why:[`غلط: ده الـ server side.`,`صح.`,`غلط: الـ query formulation هي ترجمة سؤال business لـ SQL code. جزء من كتابة الـ query لكنها مش اسم نشاط الـ client-side tuning.`,`غلط: الـ recovery ملهاش علاقة بالأداء.`],
+ deep:`الـ DBMS performance tuning (server side) بيظبط parameters الـ: <b>Data cache</b>، <b>SQL cache</b>، <b>Sort cache</b>، <b>Optimizer mode</b>. ونصايح السلايدز: استخدم RAID، قلل disk contention، حط الجداول اللي عليها ضغط في table spaces لوحدها، data files منفصلة للـ indexes والـ system، partition tables حسب الاستخدام، استخدم denormalized tables لما يكون مناسب، وخزّن computed و aggregate attributes في الجداول.`},
+
+/* ================= MODEL 1 — TRUE/FALSE ================= */
+{id:'m1-16', m:1, ch:1, topic:'Transactions', tf:true, q:`A SELECT statement that does not modify any data is still considered a transaction because it accesses the database.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. السلايدز بتقول: Not all transactions update the database. الـ query زي <code>SELECT CUST_NUMBER, CUST_BALANCE FROM CUSTOMER WHERE CUST_NUMBER = 10016;</code> مش بتغير حاجة، لكنها بتعتبر transaction لأنها <b>accesses the database</b>.`,
+ why:[`صح: أي access للـ database يعتبر transaction.`,`غلط: لو اخترت False يبقى فاكر إن الـ transaction لازم تعمل update، وده الفخ.`],
+ deep:`وفي نفس الوقت: معظم الـ transactions الحقيقية بتتكون من 2 أو أكتر database requests، وكل request يساوي SQL statement واحد. والـ improper أو incomplete transactions ممكن تبوّظ الـ database integrity، وبعض الـ DBMSs بتسمح للمستخدم يعرّف constraints، وبعض الـ integrity rules بيطبقها الـ DBMS أوتوماتيك.`},
+
+{id:'m1-17', m:1, ch:1, topic:'ACID', tf:true, q:`Durability means that once a transaction is committed, it cannot be undone.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. الـ <b>Durability</b>: once transactions are committed, they cannot be undone. التغيير بقى دائم حتى لو حصل system failure بعدها، والـ recovery بيضمن إن الـ committed transactions تتكتب.`,
+ why:[`صح: ده تعريف الـ Durability بالحرف.`,`غلط: الـ ROLLBACK بيلغي transactions لسه ما اتعملهاش commit بس. بعد الـ commit مفيش رجوع.`],
+ deep:`عشان كده في الـ recovery: الـ committed transactions <b>مش</b> بتتعمل لها rollback. لو اتعمل لها commit بعد آخر checkpoint ولسه ما اتكتبتش على الـ disk، الـ DBMS بيعمل لها <b>redo</b> باستخدام الـ after values.`},
+
+{id:'m1-18', m:1, ch:1, topic:'Lock Types', tf:true, q:`Binary locks allow two transactions to read the same object at the same time, since no update occurs.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. الـ <b>binary lock</b> ليه حالتين بس: locked (1) و unlocked (0). وبيعتبر <b>too restrictive</b> لأن الـ DBMS مش هيسمح لـ transaction-ين يقروا نفس الـ object حتى لو محدش فيهم بيعدّل ومفيش أي concurrency problem ممكن تحصل.`,
+ why:[`غلط: ده بالظبط عيب الـ binary lock، إنه مش بيسمح بكده.`,`صح: الـ binary lock بيقفل الـ object حتى على القراية.`],
+ deep:`عشان كده ظهر <b>shared/exclusive</b>: الـ <b>shared lock</b> بيسمح لكذا transaction يقروا مع بعض. الـ <b>exclusive lock</b> للـ write، ولازم ميكونش فيه أي lock تاني على الـ item. يعني الـ lock بقى ليه 3 حالات: unlocked و shared (read) و exclusive (write). وفي الـ binary lock كل operation لازم الـ object يتقفل، والـ transaction لازم تفك القفل لما تخلص، والـ lock/unlock بيعملهم الـ DBMS أوتوماتيك مش المستخدم.`},
+
+{id:'m1-19', m:1, ch:1, topic:'Deadlocks', tf:true, q:`No deadlock condition can exist among shared locks.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. الـ deadlock ممكن يحصل <b>بس</b> لو واحدة من الـ transactions عايزة تاخد <b>exclusive lock</b> على data item. الـ shared locks مش بتتعارض مع بعض، فمفيش حد هيستنى حد.`,
+ why:[`صح: السلايدز بتقول No deadlock condition can exist among shared locks.`,`غلط: الـ shared locks بتتدي لكذا transaction في نفس الوقت، فمستحيل يحصل انتظار متبادل بينهم.`],
+ deep:`شكل الـ deadlock: T1 عايزة X وبعدها Y، و T2 عايزة Y وبعدها X. T1 ماسكة X ومستنية Y، و T2 ماسكة Y ومستنية X. كل واحدة مستنية التانية تفك القفل، وده اسمه <b>deadly embrace</b>، وشبه الـ traffic gridlock.`},
+
+{id:'m1-20', m:1, ch:1, topic:'Two-Phase Locking', tf:true, q:`Two-phase locking guarantees serializability and also prevents deadlocks.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. الـ <b>Two-phase locking (2PL)</b> بيضمن الـ serializability، لكنه <b>does not prevent deadlocks</b>. بالعكس، السلايدز بتقول إنه بيزود الـ processing cost وممكن يسبب deadlocks.`,
+ why:[`غلط: نص الجملة الأول صح، لكن الجزء التاني (prevents deadlocks) غلط، فالجملة كلها False.`,`صح: 2PL = guarantees serializability, but does NOT prevent deadlocks.`],
+ deep:`مرحلتين: <b>Growing phase</b>: الـ transaction تاخد كل الـ locks اللي محتاجاها من غير ما تفك أي واحد. لما تاخدهم كلهم توصل لـ <b>locked point</b>. <b>Shrinking phase</b>: تفك كل الـ locks ومتقدرش تاخد lock جديد. القواعد: transaction-ين ميكونش معاهم locks متعارضة، ومفيش unlock يسبق lock في نفس الـ transaction، ومفيش داتا تتأثر غير بعد ما كل الـ locks تتاخد. نصيحة للامتحان: أي جملة True/False فيها جزء صح وجزء غلط تبقى False.`},
+
+{id:'m1-21', m:1, ch:1, topic:'Lock Granularity', tf:true, q:`Field-level locking is the most flexible type of lock, but it requires an extremely high level of overhead and is rarely implemented.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. الـ <b>field-level lock</b> بيسمح لـ transactions مختلفة تستخدم نفس الـ row طالما كل واحدة بتستخدم field (attribute) مختلف. ده أكتر نوع flexible، لكن الـ overhead بتاعه عالي جدًا فنادرًا ما بيتعمل.`,
+ why:[`صح: كل أجزاء الجملة من السلايدز.`,`غلط: الجملة مطابقة للسلايدز.`],
+ deep:`قارنه بالـ <b>row-level lock</b>: بيسمح لـ transactions تستخدم rows مختلفة من نفس الجدول حتى لو في نفس الـ page، والـ overhead عالي لأن فيه lock لكل row. ولو اتطلبت locks كتير على نفس الـ page، بيتعمل escalation لـ page-level lock أوتوماتيك.`},
+
+{id:'m1-22', m:1, ch:2, topic:'DBMS Architecture', tf:true, q:`The data cache (buffer cache) is a shared, reserved memory area that stores the most recently accessed data blocks in RAM.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. الـ <b>data cache</b> أو <b>buffer cache</b> هو shared reserved memory area بيخزن آخر data blocks اتعمل لها access في الـ RAM. الداتا اللي بتتقري من الـ data files بتتحط فيه، وكمان بيعمل cache للـ system catalog ولمحتوى الـ indexes.`,
+ why:[`صح: التعريف من السلايدز.`,`غلط: ممكن تكون لخبطته مع الـ SQL cache اللي بيخزن processed SQL statements.`],
+ deep:`عشان الـ DBMS يشتغل على الداتا لازم يجيبها من الـ permanent storage (data files) ويحطها في الـ RAM (data cache)، وده عن طريق <b>I/O requests</b>. الشغل على الداتا في الـ data cache أسرع بكتير من الشغل عليها في الـ data files.`},
+
+{id:'m1-23', m:1, ch:2, topic:'Query Processing', tf:true, q:`A DDL statement such as CREATE TABLE mostly manipulates end-user data, while DML statements update the data dictionary.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. الجملة معكوسة. الـ <b>DDL</b> (زي CREATE TABLE) بيحدث الـ <b>data dictionary</b> أو الـ system catalog. أما الـ <b>DML</b> (SELECT, INSERT, UPDATE, DELETE) بيتعامل أساسًا مع <b>end-user data</b>.`,
+ why:[`غلط: الأدوار معكوسة.`,`صح: DDL → data dictionary، و DML → end-user data.`],
+ deep:`عشان كده السلايدز بتقول إن معالجة الـ DDL مختلفة عن معالجة الـ DML. الـ 3 phases (parsing, execution, fetching) بتتكلم أساسًا عن الـ DML queries.`},
+
+{id:'m1-24', m:1, ch:2, topic:'Index Selectivity', tf:true, q:`Creating too many indexes will slow down INSERT, UPDATE, and DELETE operations, especially if the table contains many thousands of rows.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. كل ما تعمل insert أو update أو delete، كل الـ indexes على الجدول لازم تتحدث هي كمان. فكل ما الـ indexes تكتر، الـ DML يبطأ. عشان كده مينفعش تعمل index لكل عمود.`,
+ why:[`صح: من السلايدز بالنص.`,`غلط: الـ indexes بتسرّع القراية (SELECT) لكنها بتبطّأ الكتابة.`],
+ deep:`إرشادات الـ indexes: اعمل index لكل attribute في WHERE أو HAVING أو ORDER BY أو GROUP BY. متعملش index في الجداول الصغيرة أو الأعمدة اللي الـ sparsity بتاعتها قليلة. عرّف الـ primary و foreign keys عشان الـ optimizer يستخدم indexes في الـ joins، ولو بتعمل join على أعمدة غيرهم اعمل لها index. وبعض الـ optimizers بتختار index واحد بس يبقى الـ <b>driving index</b> للـ query.`},
+
+{id:'m1-25', m:1, ch:2, topic:'Indexes', tf:true, q:`Hash indexes are best suited for range conditions such as P_PRICE BETWEEN 10 AND 50.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. السلايدز بتقول إن الـ <b>hash index</b> كويس لـ simple and fast lookup operations based on <b>equality conditions</b>، زي LNAME = "Scott" AND FNAME = "Shannon". الـ range (BETWEEN, >, <) مش نقطة قوته.`,
+ why:[`غلط: الـ hash بيشتغل على تطابق القيمة بالظبط، مش على مدى.`,`صح: hash = equality conditions.`],
+ deep:`الـ hash بيحوّل القيمة لعنوان مباشر، فبيعرف يوصل للقيمة المطلوبة بالظبط بسرعة، لكن مفيش ترتيب للقيم يخليه يعرف "كل اللي بين 10 و 50". الـ B-tree مرتب، وعشان كده أنسب للـ ranges.`},
+
+/* ================= MODEL 2 — MCQ ================= */
+{id:'m2-01', m:2, ch:1, topic:'Lock Types', q:`In a shared/exclusive locking schema, an exclusive lock is granted to a transaction:`,
+ o:[`Whenever the transaction only wants to read the data`,`If and only if no other locks are held on the data item`,`Even if another transaction holds a shared lock on the same item`,`Only when the whole database is locked`], a:1,
+ ex:`الـ <b>exclusive lock</b> بيتدي لما transaction عايزة تعمل write، وبشرط <b>if and only if no other locks are held</b> على الـ data item. لو T1 ماسكة shared lock على X، فـ T2 مش هتاخد exclusive على X، وده اسمه <b>mutual exclusive rule</b>، و T2 لازم تستنى لحد ما T1 تعمل commit.`,
+ why:[`غلط: القراية بس بتاخد shared lock مش exclusive.`,`صح.`,`غلط: ده ضد الـ mutual exclusive rule.`,`غلط: نوع الـ lock ملوش علاقة بالـ granularity.`],
+ deep:`الـ shared/exclusive بيزود الـ overhead على الـ lock manager لأنه لازم يعرف نوع الـ lock قبل ما يديه. فيه 3 lock operations: <code>READ_LOCK</code> بيشوف نوع الـ lock، و <code>WRITE_LOCK</code> بيدي الـ lock، و <code>UNLOCK</code> بيفكه. والـ schema اتطور بحيث يسمح بـ <b>upgrade</b> من shared لـ exclusive و <b>downgrade</b> من exclusive لـ shared. وتعريف الـ conflict: عمليتين بيعملوا access على نفس الداتا وواحدة منهم على الأقل WRITE.`},
+
+{id:'m2-02', m:2, ch:1, topic:'Two-Phase Locking', q:`In two-phase locking, the phase in which a transaction acquires all required locks without unlocking any data is the:`,
+ o:[`Shrinking phase`,`Growing phase`,`Validation phase`,`Write phase`], a:1,
+ ex:`في الـ <b>Growing phase</b> الـ transaction بتاخد كل الـ locks اللي محتاجاها من غير ما تفك أي data. لما تكمّلهم توصل للـ <b>locked point</b>، وبعدها تعدّل الداتا، وبعدين تدخل الـ shrinking phase.`,
+ why:[`غلط: في الـ shrinking الـ transaction بتفك الـ locks ومتقدرش تاخد جديد.`,`صح.`,`غلط: validation phase تبع الـ optimistic method.`,`غلط: write phase تبع الـ optimistic method.`],
+ deep:`قواعد الـ 2PL التلاتة: (1) transaction-ين ميكونش معاهم conflicting locks. (2) مفيش unlock يسبق lock في نفس الـ transaction. (3) مفيش داتا تتأثر لحد ما كل الـ locks تتاخد، يعني لحد الـ locked point. مثال السلايدز: الـ transaction تاخد الـ 2 locks اللي محتاجاهم، توصل للـ locked point، تعدّل الداتا، وفي الآخر تفك كل الـ locks.`},
+
+{id:'m2-03', m:2, ch:1, topic:'Wait/Die', q:`Under the wait/die scheme, what happens when the YOUNGER transaction requests a lock held by an older transaction?`,
+ o:[`It waits until the older transaction completes`,`It dies (is rolled back) and is rescheduled using the same timestamp`,`It wounds the older transaction and takes the lock`,`It is rolled back and assigned a new timestamp`], a:1,
+ ex:`في <b>wait/die</b>: لو الـ <b>older</b> هي اللي طلبت الـ lock بتستنى (wait). لو الـ <b>younger</b> هي اللي طلبت بتموت (die)، يعني rollback وتتجدول تاني <b>بنفس الـ timestamp</b>.`,
+ why:[`غلط: الانتظار للـ older بس في wait/die.`,`صح.`,`غلط: الـ wound ده في wound/wait، وبيعمله الـ older في الـ younger مش العكس.`,`غلط: في wait/die و wound/wait الـ transaction بترجع بنفس الـ timestamp مش timestamp جديد.`],
+ deep:`جدول تحفظه:<br><b>Wait/Die</b>: older يطلب → يستنى. younger يطلب → يموت (rollback).<br><b>Wound/Wait</b>: older يطلب → يجرح (wound) الـ younger ويعمله rollback. younger يطلب → يستنى.<br>القاعدة الذهبية: في الحالتين الـ <b>older عمرها ما بتتعمل لها rollback</b>، دايمًا الـ younger هي اللي بتضحي. وعشان الانتظار ممكن يطول للأبد، كل lock request ليه <b>time-out value</b>: لو الـ lock ما اتداش قبل ما الوقت يخلص، الـ transaction بتتعمل لها rollback.`},
+
+{id:'m2-04', m:2, ch:1, topic:'Optimistic Methods', q:`In the optimistic approach to concurrency control, a transaction moves through which phases, in order?`,
+ o:[`Read, validation, write`,`Validation, read, write`,`Growing, shrinking`,`Lock, read, unlock`], a:0,
+ ex:`الـ <b>optimistic approach</b> بيفترض إن أغلب الـ operations مش بتتعارض، فمش بيستخدم locking ولا time stamping. الـ transaction بتمشي في: <b>Read</b> ← <b>Validation</b> ← <b>Write</b>.`,
+ why:[`صح.`,`غلط: الترتيب غلط. لازم تقرا وتعدّل الأول عشان يبقى فيه حاجة تتعمل لها validation.`,`غلط: دي phases الـ two-phase locking.`,`غلط: الـ optimistic مش بيستخدم locks أصلًا.`],
+ deep:`<b>Read phase</b>: الـ transaction تقرا وتحسب وتعمل updates على <b>private copy</b> (temporary update file) محدش تاني بيشوفها. <b>Validation phase</b>: تتأكد إن التغييرات مش هتبوّظ الـ integrity والـ consistency. لو positive تروح للـ write، لو negative تتعمل restart والتغييرات تترمي. <b>Write phase</b>: التغييرات تتطبق على الـ database بشكل دائم. مناسب للأنظمة اللي أغلبها read/query وفيها updates قليلة.`},
+
+{id:'m2-05', m:2, ch:1, topic:'Scheduler', q:`The special DBMS process that establishes the order in which operations are executed within concurrent transactions is the:`,
+ o:[`Lock manager`,`Scheduler`,`Query optimizer`,`Listener`], a:1,
+ ex:`الـ <b>Scheduler</b> هو process خاص في الـ DBMS بيحدد ترتيب تنفيذ الـ operations جوه الـ concurrent transactions. بيعمل <b>interleave</b> للـ operations عشان يضمن الـ serializability والـ isolation، وبيعتمد على concurrency control algorithms زي الـ locking أو الـ time stamping.`,
+ why:[`غلط: الـ lock manager مسؤول عن إعطاء الـ locks ومراقبتها (assigning and policing).`,`صح.`,`غلط: الـ optimizer بيحلل الـ SQL ويلاقي أكفأ طريقة للوصول للداتا.`,`غلط: الـ listener بيستقبل طلبات الـ clients ويوديها للـ user process.`],
+ deep:`شغلانة الـ scheduler الأساسية إنه يعمل <b>serializable schedule</b>: التنفيذ المتداخل لـ T1 و T2 و T3 يدي نفس نتيجة تنفيذهم ورا بعض. مش كل الـ transactions serializable، واللي مش serializable بتتنفذ <b>first-come, first-served (FCFS)</b>. والـ FCFS طريقة inefficient لأن الـ CPU بيقعد فاضي مستني الـ READ أو WRITE يخلص. ولو transaction-ين (أو واحدة منهم) عايزين WRITE على نفس الداتا يبقى فيه <b>conflict</b>.`},
+
+{id:'m2-06', m:2, ch:1, topic:'Deadlocks', q:`If the probability of deadlocks is LOW, which deadlock control method is recommended?`,
+ o:[`Prevention`,`Detection`,`Avoidance`,`Field-level locking`], a:1,
+ ex:`لو احتمال الـ deadlock <b>قليل</b> يبقى <b>Detection</b>، لأنه مش منطقي تدفع تكلفة المنع طول الوقت عشان حاجة نادرًا ما بتحصل. ولو الاحتمال <b>عالي</b> يبقى <b>Prevention</b>.`,
+ why:[`غلط: الـ prevention مناسب لما الاحتمال عالي.`,`صح.`,`غلط: الـ avoidance بيستخدم لو الـ response time مش أولوية عالية للنظام.`,`غلط: ده lock granularity مش طريقة للتحكم في الـ deadlock.`],
+ deep:`الطرق التلاتة:<br><b>Prevention</b>: الـ transaction اللي بتطلب lock جديد بتتعمل لها abort لو فيه احتمال deadlock، وتغييراتها تتعمل لها rollback، والـ locks تتفك، وتتجدول تاني.<br><b>Detection</b>: الـ DBMS بيفحص دوريًا. لو لقى deadlock بيختار <b>victim</b> ويعمله abort (rollback و restart) والتانية تكمل.<br><b>Avoidance</b>: الـ transaction لازم تاخد كل الـ locks اللي محتاجاها قبل ما تتنفذ، وده بيزود الـ response time.<br>وكل الـ DBMSs الحالية بتدعم الـ detection.`},
+
+{id:'m2-07', m:2, ch:1, topic:'Recovery', q:`Using the write-through technique, during recovery a transaction that was left active (with neither a COMMIT nor a ROLLBACK) before the failure is:`,
+ o:[`Ignored, because the database was never updated`,`Redone using the "after" values, from oldest to newest`,`Rolled back using the "before" values, from newest to oldest`,`Redone using the "before" values, from oldest to newest`], a:2,
+ ex:`في الـ <b>write-through</b>، الـ database بتتحدث فورًا أثناء تنفيذ الـ transaction حتى قبل الـ commit. فلو transaction فضلت active أو عملت ROLLBACK، تغييراتها ممكن تكون اتكتبت فعلًا، ولازم تترجع باستخدام الـ <b>before values</b> بترتيب <b>newest to oldest</b>.`,
+ why:[`غلط: ده الكلام الصح في الـ deferred-write، لأن هناك الـ database مبتتحدثش قبل الـ commit.`,`غلط: الـ redo بالـ after values للـ transactions اللي اتعمل لها commit بعد آخر checkpoint.`,`صح.`,`غلط: الـ before values بتستخدم للـ undo مش الـ redo، والترتيب بيبقى من الأحدث للأقدم.`],
+ deep:`جدول المقارنة (أهم حاجة في الـ recovery):<br><b>Committed قبل آخر checkpoint</b>: في الطريقتين ما بنعملش حاجة، الداتا اتحفظت.<br><b>Committed بعد آخر checkpoint</b>: في الطريقتين redo بالـ <b>after</b> values من oldest لـ newest.<br><b>ROLLBACK أو active</b>: deferred → ما بنعملش حاجة لأن الـ DB ما اتحدثتش. write-through → undo بالـ <b>before</b> values من newest لـ oldest.`},
+
+{id:'m2-08', m:2, ch:1, topic:'Recovery', q:`Which concept ensures that transaction logs are written BEFORE any database data is actually updated?`,
+ o:[`Redundant transaction logs`,`Write-ahead-log protocol`,`Checkpoints`,`Buffers`], a:1,
+ ex:`الـ <b>Write-ahead-log protocol</b> بيضمن إن الـ transaction log يتكتب <b>قبل</b> ما الداتا نفسها تتحدث. فلو حصل failure، الـ database تقدر تتعمل لها recovery من الـ log.`,
+ why:[`غلط: الـ redundant logs (نسخ من الـ log) بتضمن إن عطل الـ disk الفعلي ميمنعش الـ recovery.`,`صح.`,`غلط: الـ checkpoint عملية بيكتب فيها الـ DBMS كل الـ buffers المتحدثة على الـ disk.`,`غلط: الـ buffers أماكن تخزين مؤقت في الـ primary memory.`],
+ deep:`المفاهيم الأربعة اللي بتأثر على الـ recovery: <b>Write-ahead-log</b>، و <b>Redundant transaction logs</b>، و <b>Buffers</b> (الـ DBMS بيعدّل نسخة الداتا في الـ buffer لأنه أسرع، وبعدين يكتب كل الـ buffers على الـ disk مرة واحدة)، و <b>Checkpoints</b> (الـ DBMS بيكتب كل الـ buffers المتحدثة على الـ disk، ومش بينفذ أي طلبات تانية وقتها، وبيحصل كذا مرة في الساعة، وبيتسجل في الـ log، وبعده الـ physical database والـ log بيبقوا in sync).`},
+
+{id:'m2-09', m:2, ch:2, topic:'Optimization Modes', q:`Which query optimization mode takes place at compilation time and is common when SQL statements are embedded in procedural languages such as C# or Visual Basic .NET?`,
+ o:[`Dynamic query optimization`,`Static query optimization`,`Manual query optimization`,`Rule-based query optimization`], a:1,
+ ex:`الـ <b>Static query optimization</b> بتحصل وقت الـ <b>compilation</b>: أحسن strategy بتتحدد لما الـ DBMS يعمل compile للـ query. ومنتشرة لما الـ SQL يبقى embedded جوه لغة زي C# أو VB .NET.`,
+ why:[`غلط: الـ dynamic بتحصل وقت التنفيذ (run time) وبتستخدم أحدث معلومات عن الـ database.`,`صح.`,`غلط: الـ manual معناها إن المستخدم أو المبرمج هو اللي بيختار ويجدول الـ optimization.`,`غلط: الـ rule-based نوع algorithm مبني على قواعد، مش توقيت.`],
+ deep:`تقسيمة الـ optimization modes:<br><b>مين بيعمل؟</b> Automatic (الـ DBMS لوحده) أو Manual (المستخدم).<br><b>إمتى؟</b> Static (وقت الـ compile) أو Dynamic (وقت الـ run).<br><b>بإيه؟</b> Statistically based (إحصائيات عن الـ database، وليها mode-ين: dynamic statistical generation بيحدث الإحصائيات بعد كل access، و manual statistical generation بيتحدث بـ utility زي <code>RUNSTAT</code> في IBM DB2) أو Rule-based (قواعد يحددها المستخدم).`},
+
+{id:'m2-10', m:2, ch:2, topic:'Optimizer Choices', q:`Which optimizer uses algorithms based on statistics about the objects being accessed, adding up processing, I/O, and resource costs to derive a total cost?`,
+ o:[`Rule-based optimizer`,`Cost-based optimizer`,`Static optimizer`,`Manual optimizer`], a:1,
+ ex:`الـ <b>Cost-based optimizer</b> بيستخدم algorithms مبنية على <b>statistics</b> عن الـ objects، وبيجمع processing cost و I/O cost و resource cost عشان يطلع <b>total cost</b> لكل بديل، ويختار الأرخص.`,
+ why:[`غلط: الـ rule-based بيستخدم preset rules and points، وكل operation ليها fixed cost.`,`صح.`,`غلط: static ده توقيت الـ optimization مش نوع الـ optimizer.`,`غلط: مفيش نوع اسمه manual optimizer في الاختيارين بتوع السلايدز.`],
+ deep:`هدف الـ optimizer: يلاقي طرق بديلة لتنفيذ الـ query، ويحسب تكلفة كل طريقة، ويختار الأقل. مثال السلايدز: منتجات الـ vendors اللي في Florida. PRODUCT فيه 7,000 row، و VENDOR فيه 300 row، و 10 vendors في Florida، و 1,000 منتج جايين منهم. الأرخص إنك تفلتر VENDOR الأول (V_STATE = 'FL') وبعدين تعمل الـ join. والـ <b>database statistics</b> بتشمل: tables، indexes، عدد الـ processors، سرعة الـ processor، الـ temporary space المتاح، وبتتجمع manual من الـ DBA أو automatic من الـ DBMS (مثلًا أمر <code>ANALYZE</code>).`},
+
+{id:'m2-11', m:2, ch:2, topic:'Optimizer Hints', q:`Special instructions for the optimizer that are embedded inside the SQL command text are called:`,
+ o:[`Access plans`,`Optimizer hints`,`Database statistics`,`Triggers`], a:1,
+ ex:`الـ <b>Optimizer hints</b> هي تعليمات خاصة للـ optimizer مكتوبة جوه نص الـ SQL command. بتغيّر الـ optimizer mode للـ SQL statement الحالي بس.`,
+ why:[`غلط: الـ access plan هو اللي الـ optimizer بيطلعه (سلسلة I/O operations)، مش تعليمات انت بتكتبها.`,`صح.`,`غلط: الـ statistics قياسات بيجمعها الـ DBMS عن الـ objects.`,`غلط: الـ triggers procedures بتشتغل أوتوماتيك على events.`],
+ deep:`ليه نحتاج hints؟ لأن الـ optimizer ممكن ميختارش أحسن plan. هو بياخد قراراته على أساس الـ statistics الموجودة، ولو الإحصائيات قديمة ممكن يختار قرارات أقل كفاءة. فانت كمبرمج تقدر توجهه (في Oracle مثلًا hints زي ALL_ROWS و FIRST_ROWS و INDEX).`},
+
+{id:'m2-12', m:2, ch:2, topic:'Conditional Expressions', q:`Which of the following conditional expressions is generally evaluated the FASTEST?`,
+ o:[`P_PRICE - 10 = 7`,`P_PRICE = 17`,`P_QOH > P_MIN * 1.10`,`NOT (P_PRICE > 10.00)`], a:1,
+ ex:`<code>P_PRICE = 17</code> فيها 3 مميزات مع بعض: <b>simple column مع literal</b>، و <b>equality comparison</b> (أسرع من الـ inequality)، و <b>numeric</b> (أسرع من character و date و NULL).`,
+ why:[`غلط: فيها عملية حسابية على العمود. السلايدز بتقول حوّلها لـ literal: P_PRICE - 10 = 7 تبقى P_PRICE = 17.`,`صح.`,`غلط: فيها computation (P_MIN * 1.10) وكمان inequality. السلايدز بتقول P_PRICE > 10.00 أسرع من P_QOH > P_MIN * 1.10.`,`غلط: حاول تتجنب NOT. تتكتب P_PRICE <= 10.00.`],
+ deep:`قواعد الـ conditional expressions الكفء:<br>• استخدم simple columns أو literals.<br>• Numeric أسرع من character و date و NULL، والـ NULL الأبطأ.<br>• Equality أسرع من inequality (> و >= و < و <=).<br>• حوّل الشروط لـ literals.<br>• اكتب الـ equality conditions الأول.<br>• في AND: الشرط الأكثر احتمالًا يكون false الأول.<br>• في OR: الشرط الأكثر احتمالًا يكون true الأول.<br>• اتجنب NOT: NOT (EMP_SEX = 'M') تبقى EMP_SEX = 'F'.`},
+
+{id:'m2-13', m:2, ch:2, topic:'Conditional Expressions', q:`When using multiple AND conditions in a WHERE clause, you should write first the condition that is:`,
+ o:[`Most likely to be true`,`Most likely to be false`,`The longest expression`,`Using the NOT operator`], a:1,
+ ex:`في الـ <b>AND</b> لو أول شرط طلع <b>false</b>، الـ DBMS مش محتاج يقيّم باقي الشروط لأن النتيجة كلها هتبقى false. فحط الشرط الأكثر احتمالًا يكون false الأول عشان توفر شغل.`,
+ why:[`غلط: ده للـ OR. في الـ OR أول true بيكفي.`,`صح.`,`غلط: طول الشرط مش معيار.`,`غلط: السلايدز بتقول اتجنب NOT أصلًا.`],
+ deep:`فكرة اسمها short-circuit evaluation. <b>AND</b>: أول false بيوقف التقييم، فحط "الأكثر احتمالًا false" الأول. <b>OR</b>: أول true بيوقف التقييم، فحط "الأكثر احتمالًا true" الأول. مثال السلايدز للتحويل: P_QOH < P_MIN AND P_MIN = P_REORDER AND P_QOH = 10 تبقى P_QOH = 10 AND P_MIN = P_REORDER AND P_MIN > 10.`},
+
+{id:'m2-14', m:2, ch:2, topic:'DBMS Processes', q:`Which DBMS process listens for clients' requests and passes each request to the appropriate user process?`,
+ o:[`Scheduler`,`Listener`,`Optimizer`,`Lock manager`], a:1,
+ ex:`الـ <b>Listener</b> بيسمع طلبات الـ clients، ولما يستقبل request بيوديه للـ <b>user process</b> المناسب.`,
+ why:[`غلط: الـ scheduler بينظم التنفيذ المتزامن للـ SQL requests.`,`صح.`,`غلط: الـ optimizer بيحلل الـ SQL ويلاقي أكفأ طريقة للوصول للداتا.`,`غلط: الـ lock manager بيدير كل الـ locks على الـ database objects بما فيها الـ disk pages.`],
+ deep:`الـ DBMS processes الخمسة: <b>Listener</b> يستقبل الطلبات. <b>User</b>: process بيتعمل لكل client session، فلما تعمل log on بيتعملك user process. <b>Scheduler</b> ينظم الـ concurrent execution. <b>Lock manager</b> يدير الـ locks. <b>Optimizer</b> يحلل الـ queries ويختار أكفأ طريقة.`},
+
+{id:'m2-15', m:2, ch:2, topic:'Indexes', q:`Bitmap indexes are mostly used in:`,
+ o:[`OLTP tables with very few rows`,`Data warehouse applications, in tables with a large number of rows in which a small number of column values repeat many times`,`Tables where every value in the indexed column is unique`,`Simple lookups based only on equality conditions`], a:1,
+ ex:`الـ <b>Bitmap index</b> بيستخدم أساسًا في الـ <b>data warehouse</b>: جداول فيها rows كتير جدًا، وعدد قليل من القيم بيتكرر كتير. وبياخد مساحة أقل من الـ B-tree لأنه بيخزن bits بدل bytes.`,
+ why:[`غلط: الجداول الصغيرة أصلًا مش محتاجة index.`,`صح.`,`غلط: القيم الـ unique (sparsity عالية) أنسب لها B-tree.`,`غلط: ده وصف الـ hash index.`],
+ deep:`تخيل عمود region فيه 4 قيم بس في جدول 10 مليون row. الـ bitmap بيعمل لكل قيمة صف bits طوله عدد الـ rows (1 لو الـ row فيه القيمة دي، 0 لو لأ). مساحته صغيرة وسريع جدًا في الفلترة والـ counting، وعشان كده مناسب للـ data warehouse.`},
+
+/* ================= MODEL 2 — TRUE/FALSE ================= */
+{id:'m2-16', m:2, ch:1, topic:'Wound/Wait', tf:true, q:`In the wound/wait scheme, if the older transaction requests a lock, it waits until the younger transaction completes.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. في <b>wound/wait</b> لو الـ <b>older</b> طلبت الـ lock، بتعمل <b>preempt (wound)</b> للـ younger: بتعملها rollback وتتجدول تاني بنفس الـ timestamp. الانتظار ده بيحصل للـ older في <b>wait/die</b>.`,
+ why:[`غلط: انت كده بتوصف wait/die.`,`صح: في wound/wait الـ older بتجرح، والـ younger هي اللي بتستنى.`],
+ deep:`حيلة للحفظ: اسم الـ scheme بيقولك الـ older بتعمل إيه ← والـ younger بتعمل إيه. <b>Wait/Die</b>: older = Wait، younger = Die. <b>Wound/Wait</b>: older = Wound، younger = Wait.`},
+
+{id:'m2-17', m:2, ch:1, topic:'Time Stamping', tf:true, q:`In time stamping, each value stored in the database requires two additional timestamp fields: one for the last time the field was read and one for the last update.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. ده <b>عيب</b> الـ time stamping: كل قيمة محتاجة field-ين زيادة (last read و last update)، وده بيزود احتياج الـ memory والـ processing overhead.`,
+ why:[`صح: من السلايدز بالنص.`,`غلط: الجملة مطابقة للسلايدز.`],
+ deep:`الـ time stamping بيدي كل transaction <b>global unique timestamp</b>، وده بيعمل ترتيب صريح للـ transactions. خاصيتين: <b>Uniqueness</b> (مفيش قيمتين متساويتين) و <b>Monotonicity</b> (القيم دايمًا بتزيد). كل الـ operations في نفس الـ transaction ليها نفس الـ timestamp. لو transaction-ين اتعارضوا، واحدة بتقف وتتعمل لها rollback وتتجدول وتاخد <b>timestamp جديد</b>. وده بيستهلك resources كتير لأن transactions كتير ممكن تقف وتتجدول وتاخد stamp جديد.`},
+
+{id:'m2-18', m:2, ch:1, topic:'Recovery', tf:true, q:`With the deferred-write technique, the database is immediately updated by transaction operations during the transaction's execution, before it reaches its commit point.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. ده وصف الـ <b>write-through</b>. في الـ <b>deferred-write</b> (deferred update) الـ <b>transaction log بس</b> اللي بيتحدث، والـ database بتتحدث فعليًا بعد ما الـ transaction توصل للـ <b>commit point</b>.`,
+ why:[`غلط: انت كده بتوصف write-through.`,`صح: deferred = مؤجل لحد الـ commit.`],
+ deep:`نتيجة مهمة: في الـ deferred-write لو الـ transaction عملت abort قبل الـ commit، <b>مش محتاجين rollback</b> لأن الـ database ما اتلمستش. أما في الـ write-through لازم undo بالـ before values. الكلمة نفسها بتساعدك: deferred يعني متأجل، و write-through يعني بيكتب على طول.`},
+
+{id:'m2-19', m:2, ch:1, topic:'Recovery', tf:true, q:`During recovery, a transaction that was committed BEFORE the last checkpoint must be redone using the "after" values.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. لو الـ transaction عملت commit <b>قبل</b> آخر checkpoint يبقى <b>do nothing</b>، لأن الـ checkpoint كتب كل الـ buffers على الـ disk والداتا اتحفظت. الـ redo بالـ after values بيكون للي عملت commit <b>بعد</b> آخر checkpoint.`,
+ why:[`غلط: لخبطت بين قبل وبعد الـ checkpoint.`,`صح: قبل الـ checkpoint = متحفظة، مفيش حاجة تتعمل.`],
+ deep:`مثال السلايدز (deferred update): (1) حدد آخر checkpoint: TRL ID 423. (2) Transaction 101 بدأت وخلصت قبل الـ checkpoint، فمفيش action. (3) لكل transaction عملت commit بعد 423 (زي 106 و 155): لاقي الـ COMMIT (TRL 457)، ارجع بالـ previous pointers لبداية الـ transaction (TRL 397)، وامشي بالـ next pointers وطبّق الـ after values (405، 415، 419، 427، 431). (4) أي transaction تانية تتجاهل لأن مفيش حاجة اتكتبت على الـ disk.`},
+
+{id:'m2-20', m:2, ch:1, topic:'Locking', tf:true, q:`Pessimistic locking is the use of locks based on the assumption that conflict between transactions is likely.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. الـ <b>pessimistic locking</b> متشائم: بيفترض إن الـ conflict غالبًا هيحصل، فبيقفل الداتا قبل الـ access. وعكسه الـ <b>optimistic</b>: بيفترض إن أغلب الـ operations مش هتتعارض، فمش بيقفل خالص.`,
+ why:[`صح: تعريف السلايدز.`,`غلط: ممكن تكون لخبطته مع الـ optimistic.`],
+ deep:`الـ <b>lock</b> بيضمن exclusive use لـ data item للـ transaction الحالية. بيتاخد قبل الـ access ويتفك لما الـ transaction تخلص، ولازم عشان يمنع transaction تانية تقرا inconsistent data. واللي بيدي الـ locks ويراقبها هو الـ <b>lock manager</b>.`},
+
+{id:'m2-21', m:2, ch:2, topic:'Indexes', tf:true, q:`Bitmap indexes tend to use more space than B-tree indexes.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. الـ <b>bitmap indexes</b> بتاخد مساحة <b>أقل</b> من الـ B-tree لأنها بتخزن الداتا كـ <b>bits</b> مش bytes.`,
+ why:[`غلط: العكس هو الصح.`,`صح: bits < bytes، فالـ bitmap أصغر.`],
+ deep:`راجع مقارنة الأنواع التلاتة: Hash للـ equality، و B-tree الـ default (قيم بتتكرر قليل)، و Bitmap للـ data warehouse (rows كتير وقيم قليلة بتتكرر كتير، ومساحة أقل).`},
+
+{id:'m2-22', m:2, ch:2, topic:'SQL Tuning', tf:true, q:`Since most relational DBMSs perform automatic query optimization, the way a SQL query is written does not affect performance.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. السلايدز بتسأل السؤال ده بالظبط وبترد بـ <b>No</b>. الـ DBMS بيستخدم general optimization techniques ومش بيركز على الظروف الخاصة بكل query. و <b>majority of performance problems are related to poorly written SQL code</b>. والـ query المكتوبة كويس دايمًا تقريبًا أحسن من المكتوبة وحش.`,
+ why:[`غلط: ده الاعتقاد اللي السلايدز بتصححه.`,`صح: طريقة كتابة الـ SQL بتفرق جدًا.`],
+ deep:`الـ SQL performance tuning بيتقيّم من وجهة نظر الـ client. أغلب الـ RDBMSs بتعمل automatic optimization على السيرفر، وأغلب تقنيات الـ SQL optimization بتبقى DBMS-specific. بس فيه مساحة كبيرة للتحسين من ناحية الكتابة.`},
+
+{id:'m2-23', m:2, ch:2, topic:'Conditional Expressions', tf:true, q:`Numeric field comparisons are faster than character, date, and NULL comparisons, and NULL conditions tend to be the slowest of all.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. حسب السلايدز: <b>numeric comparisons</b> أسرع من character و date و NULL، و <b>NULL conditions</b> هي الأبطأ.`,
+ why:[`صح.`,`غلط: الجملة مطابقة للسلايدز.`],
+ deep:`رتّبهم من الأسرع للأبطأ: Numeric ← Character / Date ← NULL. وافتكر كمان: equality أسرع من inequality، و simple column/literal أسرع من expression فيها حساب.`},
+
+{id:'m2-24', m:2, ch:2, topic:'Query Formulation', tf:true, q:`The ORDER BY clause is one of the most resource-intensive operations for the DBMS.`,
+ o:[`True`,`False`], a:0,
+ ex:`صح. في خطوات الـ <b>Query Formulation</b>، آخر خطوة "Determine in what order to display output"، والسلايدز بتنبه إن <code>ORDER BY</code> من أكتر العمليات اللي بتستهلك resources.`,
+ why:[`صح.`,`غلط: الـ sorting بيحتاج memory (sort cache) وممكن temporary space، فهو تقيل فعلًا.`],
+ deep:`خطوات الـ Query Formulation الخمسة: (1) حدد الأعمدة والـ computations المطلوبة. (2) حدد الـ source tables. (3) حدد إزاي تعمل join. (4) حدد الـ selection criteria: simple comparison (P_PRICE > 10)، أو single value لـ multiple values بـ IN، أو nested comparisons بـ subquery، أو grouped data selection بـ HAVING. (5) حدد ترتيب العرض بـ ORDER BY.`},
+
+{id:'m2-25', m:2, ch:2, topic:'Conditional Expressions', tf:true, q:`When using multiple OR conditions, you should put the condition most likely to be false first.`,
+ o:[`True`,`False`], a:1,
+ ex:`غلط. في الـ <b>OR</b> حط الشرط <b>الأكثر احتمالًا يكون true</b> الأول، لأن أول true بيخلي النتيجة كلها true والـ DBMS يقف. "الأكثر احتمالًا false الأول" دي قاعدة الـ <b>AND</b>.`,
+ why:[`غلط: دي قاعدة الـ AND.`,`صح: OR → true first.`],
+ deep:`احفظها كده: <b>AND ← False first</b>، و <b>OR ← True first</b>. في الحالتين الهدف إن الـ DBMS يوصل للنتيجة النهائية بأقل عدد تقييمات.`}
+];
+
+// Fixed-seed shuffle of MCQ options so the key isn't always B, and stays the same on every visit
+Q.forEach((q, n) => {
+  if (q.tf) return;
+  const p = [0, 1, 2, 3]; let s = n * 7 + 3;
+  for (let i = 3; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [p[i], p[j]] = [p[j], p[i]]; }
+  q.o = p.map(i => q.o[i]); q.why = p.map(i => q.why[i]); q.a = p.indexOf(q.a);
+});
+
+const KEY = 'db2-mid-v2';
+let S = { ans: {}, flags: {}, rev: { 1: false, 2: false }, tab: '1', wrongOnly: false };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) S = Object.assign(S, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const LET = ['A', 'B', 'C', 'D'];
+const $ = id => document.getElementById(id);
+const byId = Object.fromEntries(Q.map(q => [q.id, q]));
+const numOf = q => Q.filter(x => x.m === q.m).indexOf(q) + 1;
+const isRev = q => S.tab === 'f' || S.rev[q.m];
+const status = q => S.ans[q.id] === undefined ? 'skip' : (S.ans[q.id] === q.a ? 'ok' : 'bad');
+const flagSvg = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 1.5h10v13l-5-3.2-5 3.2z"/></svg>';
+
+function visible() {
+  if (S.tab === 'f') return Q.filter(q => S.flags[q.id]);
+  let l = Q.filter(q => q.m == S.tab);
+  if (S.rev[S.tab] && S.wrongOnly) l = l.filter(q => status(q) !== 'ok');
+  return l;
+}
+
+function card(q) {
+  const rev = isRev(q), my = S.ans[q.id], st = status(q), fl = !!S.flags[q.id];
+  const lock = rev && my !== undefined;
+  const opts = q.o.map((t, i) => {
+    let c = '', mk = '';
+    if (rev && (my !== undefined || S.tab === 'f')) {
+      if (i === q.a) { c = 'ok'; mk = '✓'; }
+      else if (i === my) { c = 'bad'; mk = '✗'; }
+      else c = 'dim';
+    } else if (i === my) c = 'sel';
+    return `<button class="opt ${c}" data-q="${q.id}" data-i="${i}" ${lock ? 'disabled' : ''}><span class="let">${q.tf ? (i ? 'F' : 'T') : LET[i]}</span><span class="ot">${t}</span><span class="mk">${mk}</span></button>`;
+  }).join('');
+  let r = '';
+  if (rev && (my !== undefined || S.tab === 'f')) {
+    const v = st === 'ok' ? '<span class="verdict ok">✓ إجابتك صح</span>'
+      : st === 'bad' ? `<span class="verdict bad">✗ إجابتك غلط — انت اخترت ${q.tf ? q.o[my] : LET[my]}</span>`
+      : '<span class="verdict skip">ما جاوبتش السؤال ده</span>';
+    const why = q.why.map((w, i) => `<li class="${i === q.a ? 'ok' : 'no'}"><span class="l">${q.tf ? q.o[i] : LET[i]}</span><span>${w}</span></li>`).join('');
+    r = `<div class="rev">${v}
+      <div><h4>الشرح</h4><p>${q.ex}</p></div>
+      <div><h4>الإجابة الصحيحة</h4><div class="answer">${q.tf ? q.o[q.a] : LET[q.a] + ') ' + q.o[q.a]}</div></div>
+      <div><h4>ليه كل اختيار صح أو غلط</h4><ul class="why">${why}</ul></div>
+      <details class="deep" ${fl || st === 'bad' ? 'open' : ''}><summary>شرح أعمق ومعلومات حوالين السؤال</summary><p>${q.deep}</p></details>
+    </div>`;
+  }
+  const label = S.tab === 'f' ? `نموذج ${q.m} · ${numOf(q)}` : numOf(q);
+  return `<article class="q ${fl ? 'is-flag' : ''}" id="q-${q.id}">
+    <div class="qhead"><span class="num">${label}</span><span class="chip">Ch${q.ch} · ${q.topic}</span><span class="chip">${q.tf ? 'T / F' : 'MCQ'}</span>
+      <button class="flagbtn" data-flag="${q.id}" aria-pressed="${fl}">${flagSvg}${fl ? 'متعلّم عليه' : 'علّم عليه'}</button></div>
+    <p class="qtext" dir="ltr">${q.q}</p>
+    <div class="opts ${q.tf ? 'tf' : ''}" dir="ltr">${opts}</div>${r}</article>`;
+}
+
+function renderTabs() {
+  const nf = Object.keys(S.flags).filter(k => S.flags[k]).length;
+  const t = [['1', 'نموذج 1'], ['2', 'نموذج 2'], ['f', `المعلّم عليها <span class="cnt">(${nf})</span>`]];
+  $('tabs').innerHTML = t.map(([k, l]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${l}</button>`).join('');
+  if (S.tab === 'f') { $('controls').innerHTML = ''; return; }
+  const rv = S.rev[S.tab];
+  $('controls').innerHTML = `<div class="seg" role="group" aria-label="الوضع">
+      <button data-mode="exam" aria-pressed="${!rv}">وضع الامتحان</button>
+      <button data-mode="rev" aria-pressed="${rv}">وضع الإجابات</button></div>
+    ${rv ? `<button class="ghost" id="wrongOnly" aria-pressed="${S.wrongOnly}">اعرض الغلط بس</button>` : ''}
+    <button class="ghost" id="reset">ابدأ النموذج من جديد</button>`;
+}
+
+function renderResult() {
+  if (S.tab === 'f' || !S.rev[S.tab]) { $('result').innerHTML = ''; return; }
+  const l = Q.filter(q => q.m == S.tab);
+  const ok = l.filter(q => status(q) === 'ok');
+  const mc = ok.filter(q => !q.tf).length, tf = ok.filter(q => q.tf).length;
+  const skip = l.filter(q => status(q) === 'skip').length;
+  const pct = Math.round(ok.length / l.length * 100);
+  const msg = pct >= 85 ? 'ممتاز، انت جاهز للامتحان' : pct >= 65 ? 'كويس، راجع الأسئلة الغلط وعلّم عليها' : 'محتاج مراجعة، افتح الشرح الأعمق للأسئلة الغلط';
+  $('result').innerHTML = `<div class="result"><div class="big">${ok.length}<small>/${l.length}</small></div>
+    <div class="msg">${msg}</div>
+    <div class="parts"><span>Choose: <b>${mc}/15</b></span><span>True / False: <b>${tf}/10</b></span><span>النسبة: <b>${pct}%</b></span><span>غلط: <b>${l.length - ok.length - skip}</b></span>${skip ? `<span>ما اتجاوبش: <b>${skip}</b></span>` : ''}</div></div>`;
+}
+
+function renderNav() {
+  const l = S.tab === 'f' ? Q.filter(q => S.flags[q.id]) : Q.filter(q => q.m == S.tab);
+  $('nav').innerHTML = l.map(q => {
+    let c = '';
+    if (isRev(q)) c = S.ans[q.id] === undefined ? '' : status(q);
+    else if (S.ans[q.id] !== undefined) c = 'ans';
+    return `<button class="${c} ${S.flags[q.id] ? 'flagged' : ''}" data-go="${q.id}" aria-label="سؤال ${numOf(q)}">${numOf(q)}</button>`;
+  }).join('');
+  $('nav').parentElement.hidden = !l.length;
+}
+
+function renderMain() {
+  const l = visible();
+  if (S.tab === 'f' && !l.length) {
+    $('main').innerHTML = `<div class="empty">لسه ما علّمتش على أي سؤال.<br>دوس "علّم عليه" جنب أي سؤال مش فاهمه، وهيظهر هنا بالإجابة والشرح الأعمق مفتوح.</div>`;
+    return;
+  }
+  if (!l.length) { $('main').innerHTML = `<div class="empty">مفيش أسئلة غلط في النموذج ده.</div>`; return; }
+  const mc = l.filter(q => !q.tf), tf = l.filter(q => q.tf);
+  let h = '';
+  if (mc.length) h += `<div class="part-h"><b>Choose the correct answer</b> ${S.tab === 'f' ? '' : '15 سؤال'}</div><div class="list">${mc.map(card).join('')}</div>`;
+  if (tf.length) h += `<div class="part-h"><b>True or False</b> ${S.tab === 'f' ? '' : '10 أسئلة'}</div><div class="list">${tf.map(card).join('')}</div>`;
+  $('main').innerHTML = h;
+}
+
+function renderBar() {
+  if (S.tab === 'f') {
+    const n = Q.filter(q => S.flags[q.id]).length;
+    $('bar').innerHTML = `<div class="prog"><div class="t">عندك <b>${n}</b> سؤال متعلّم عليه للمراجعة</div></div>`;
+    return;
+  }
+  const l = Q.filter(q => q.m == S.tab), done = l.filter(q => S.ans[q.id] !== undefined).length;
+  if (S.rev[S.tab]) {
+    const ok = l.filter(q => status(q) === 'ok').length;
+    $('bar').innerHTML = `<div class="prog"><div class="t">النتيجة: <b>${ok} / ${l.length}</b></div><div class="track"><i style="width:${ok / l.length * 100}%"></i></div></div>
+      <button class="primary" data-mode="exam">ارجع لوضع الامتحان</button>`;
+  } else {
+    $('bar').innerHTML = `<div class="prog"><div class="t">جاوبت <b>${done} من ${l.length}</b></div><div class="track"><i style="width:${done / l.length * 100}%"></i></div></div>
+      <button class="primary" id="submit">سلّم وشوف النتيجة</button>`;
+  }
+}
+
+function render() { renderTabs(); renderResult(); renderNav(); renderMain(); renderBar(); }
+function refreshCard(id) {
+  const el = $('q-' + id); if (el) el.outerHTML = card(byId[id]);
+  renderNav(); renderBar(); renderResult(); renderTabs();
+}
+
+let resetArmed = null;
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tab) { S.tab = b.dataset.tab; S.wrongOnly = false; save(); render(); window.scrollTo(0, 0); return; }
+  if (b.dataset.q) {
+    const q = byId[b.dataset.q]; if (isRev(q) && S.ans[q.id] !== undefined) return;
+    S.ans[q.id] = +b.dataset.i; save(); refreshCard(q.id); return;
+  }
+  if (b.dataset.flag) {
+    S.flags[b.dataset.flag] = !S.flags[b.dataset.flag]; if (!S.flags[b.dataset.flag]) delete S.flags[b.dataset.flag];
+    save(); if (S.tab === 'f') { renderTabs(); renderNav(); renderBar(); return; } refreshCard(b.dataset.flag); return;
+  }
+  if (b.dataset.go) { const el = $('q-' + b.dataset.go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (b.dataset.mode) { S.rev[S.tab] = b.dataset.mode === 'rev'; S.wrongOnly = false; save(); render(); return; }
+  if (b.id === 'submit') { S.rev[S.tab] = true; save(); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (b.id === 'wrongOnly') { S.wrongOnly = !S.wrongOnly; save(); render(); return; }
+  if (b.id === 'reset') {
+    if (resetArmed) {
+      clearTimeout(resetArmed); resetArmed = null;
+      Q.filter(q => q.m == S.tab).forEach(q => delete S.ans[q.id]);
+      S.rev[S.tab] = false; S.wrongOnly = false; save(); render(); window.scrollTo(0, 0);
+    } else {
+      b.textContent = 'متأكد؟ دوس تاني عشان تمسح إجاباتك'; b.classList.add('warn');
+      resetArmed = setTimeout(() => { resetArmed = null; renderTabs(); }, 3500);
+    }
+  }
+});
+render();
+</script>

@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ar">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DB2 Midterm Bank</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of question cards, a sticky number strip on top and a sticky score bar at the bottom */
+:root {
+  --bg: #F3F4F7; --surface: #FFFFFF; --ink: #161B2A; --muted: #5B6276; --line: #D9DCE5;
+  --accent: #3A4FB0; --accent-bg: #E5E8F7; --accent-ink: #FFFFFF;
+  --ok: #1B7542; --ok-bg: #E3F2E8; --bad: #B3261E; --bad-bg: #FBE8E6; --flag: #A86200; --flag-bg: #FFF1D9;
+  --f-ar: "IBM Plex Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif;
+  --f-en: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10131C; --surface: #181D29; --ink: #E5E8F0; --muted: #969DB2; --line: #2B3142;
+  --accent: #8C9DF0; --accent-bg: #222B4D; --accent-ink: #0E1430;
+  --ok: #55C487; --ok-bg: #14301F; --bad: #F2766B; --bad-bg: #3A1917; --flag: #F2B44F; --flag-bg: #382810; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10131C; --surface: #181D29; --ink: #E5E8F0; --muted: #969DB2; --line: #2B3142;
+  --accent: #8C9DF0; --accent-bg: #222B4D; --accent-ink: #0E1430;
+  --ok: #55C487; --ok-bg: #14301F; --bad: #F2766B; --bad-bg: #3A1917; --flag: #F2B44F; --flag-bg: #382810; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ar); font-size: 15px; line-height: 1.7; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 780px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 120px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--accent-bg); padding: 1px 5px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; }
+
+header h1 { font-size: 26px; line-height: 1.3; margin: 0; font-weight: 700; text-wrap: balance; }
+header h1 span { font-family: var(--f-en); color: var(--accent); }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 64ch; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.tab { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 16px; font-weight: 600; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tab .cnt, .tab .sc { font-family: var(--f-en); font-variant-numeric: tabular-nums; }
+.tab .sc { font-size: 12px; opacity: .75; margin-inline-start: 4px; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 7px 14px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.ghost { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 14px; }
+.ghost[aria-pressed="true"] { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
+.ghost.warn { border-color: var(--bad); color: var(--bad); }
+
+.navstrip { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; margin-top: 12px; border-bottom: 1px solid var(--line); }
+.nav { display: flex; flex-wrap: wrap; gap: 5px; }
+.nav button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-en); font-size: 13px; font-variant-numeric: tabular-nums; position: relative; padding: 0; }
+.nav button.ans { background: var(--accent-bg); border-color: var(--accent); }
+.nav button.ok { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.nav button.bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.nav button.flagged::after { content: ""; position: absolute; top: -3px; left: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--flag); border: 2px solid var(--bg); }
+.nav .sep { width: 1px; background: var(--line); margin-inline: 4px; }
+
+.result { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: center; }
+.result .big { font-family: var(--f-en); font-size: 44px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; grid-row: span 2; }
+.result .big small { font-size: 20px; color: var(--muted); }
+.result .msg { font-weight: 600; font-size: 17px; }
+.result .parts { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: 14px; }
+.result .parts b { color: var(--ink); font-family: var(--f-en); font-variant-numeric: tabular-nums; }
+
+.part-h { margin: 28px 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); display: flex; gap: 8px; align-items: baseline; }
+.part-h b { color: var(--ink); font-size: 17px; font-family: var(--f-en); }
+.list { display: flex; flex-direction: column; gap: 14px; }
+
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; scroll-margin-top: 120px; }
+.q.is-flag { border-color: var(--flag); box-shadow: inset -4px 0 0 var(--flag); }
+.qhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.num { font-family: var(--f-en); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip { font-family: var(--f-mono); font-size: 11.5px; padding: 1px 8px; border-radius: 6px; background: var(--accent-bg); color: var(--accent); direction: ltr; }
+.chip.src { background: none; border: 1px solid var(--line); color: var(--muted); }
+.flagbtn { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 3px 10px; font-size: 13px; color: var(--muted); }
+.flagbtn svg { width: 14px; height: 14px; }
+.flagbtn[aria-pressed="true"] { border-color: var(--flag); color: var(--flag); background: var(--flag-bg); }
+.qtext { font-family: var(--f-en); font-size: 16px; font-weight: 500; line-height: 1.55; margin: 12px 0; text-align: left; }
+.opts { display: grid; gap: 8px; }
+.opts.tf { grid-template-columns: 1fr 1fr; }
+.opt { display: flex; align-items: flex-start; gap: 10px; text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 9px 12px; font-family: var(--f-en); font-size: 14.5px; line-height: 1.5; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt .let { flex: none; width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-weight: 600; font-size: 13px; border: 1px solid var(--line); background: var(--surface); }
+.opt .ot { flex: 1; min-width: 0; padding-top: 1px; overflow-wrap: anywhere; }
+.opt .mk { flex: none; font-weight: 700; padding-top: 1px; }
+.opt.sel { border-color: var(--accent); background: var(--accent-bg); }
+.opt.sel .let { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.opt.ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.ok .let { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.opt.ok .mk { color: var(--ok); }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); }
+.opt.bad .let { background: var(--bad); color: var(--surface); border-color: var(--bad); }
+.opt.bad .mk { color: var(--bad); }
+.opt.dim { opacity: .6; }
+.opt:disabled { cursor: default; color: var(--ink); }
+
+.rev { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.verdict { font-weight: 700; }
+.verdict.ok { color: var(--ok); } .verdict.bad { color: var(--bad); } .verdict.skip { color: var(--flag); }
+.rev h4 { margin: 0; font-size: 13px; color: var(--muted); font-weight: 600; }
+.rev p { margin: 2px 0 0; max-width: 68ch; }
+.answer { font-family: var(--f-en); direction: ltr; text-align: left; background: var(--ok-bg); color: var(--ok); border-radius: 8px; padding: 6px 10px; font-weight: 600; overflow-wrap: anywhere; }
+.why { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.why li { display: flex; gap: 8px; align-items: flex-start; padding: 6px 10px; border-radius: 8px; background: var(--bg); }
+.why li.ok { background: var(--ok-bg); }
+.why li .l { flex: none; font-family: var(--f-en); font-weight: 600; min-width: 18px; }
+.why li.ok .l { color: var(--ok); } .why li.no .l { color: var(--bad); }
+.deep { background: var(--flag-bg); border-radius: 10px; padding: 8px 12px; }
+.deep summary { cursor: pointer; font-weight: 600; color: var(--flag); }
+.deep p { margin-top: 6px; }
+
+.empty { text-align: center; color: var(--muted); padding: 48px 12px; border: 1px dashed var(--line); border-radius: 14px; margin-top: 20px; }
+
+.bar { position: fixed; inset: auto 0 0 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.bar-in { max-width: 780px; margin: 0 auto; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.prog { flex: 1; min-width: 160px; }
+.prog .t { font-size: 13px; color: var(--muted); }
+.prog .t b { color: var(--ink); font-family: var(--f-en); font-variant-numeric: tabular-nums; }
+.track { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+.track i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .25s; }
+.primary { border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; border-radius: 10px; padding: 10px 18px; }
+
+@media (max-width: 520px) {
+  header h1 { font-size: 22px; }
+  .opts.tf { grid-template-columns: 1fr; }
+  .result { grid-template-columns: 1fr; }
+  .result .big { grid-row: auto; }
+  .q { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap" dir="rtl">
+  <header>
+    <h1>بنك أسئلة الميدترم <span>DB2</span></h1>
+    <p>الـ 80 سؤال بتوع تاب Midterm Exam، متبسّطين ومتقسّمين على 4 نماذج. كل نموذج فيه 15 Choose و 10 True / False. رقم السؤال الأصلي مكتوب جنب كل سؤال.</p>
+  </header>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="controls" id="controls"></div>
+  <div id="result"></div>
+  <div class="navstrip"><div class="nav" id="nav"></div></div>
+  <main id="main"></main>
+</div>
+<div class="bar"><div class="bar-in" id="bar"></div></div>
+
+<script src="mcq.js"></script>
+<script src="tf.js"></script>
+<script>
+// Build 4 models: MCQs round-robin by original number; T/F filled 10 per model, never in the same model as the MCQ it came from
+const MODELS = 4;
+const mcq = window.MCQ.slice().sort((x, y) => x.s - y.s).map((q, i) => ({ ...q, id: 'mq-' + q.s, m: i % MODELS + 1 }));
+const mcqModel = Object.fromEntries(mcq.map(q => [q.s, q.m]));
+const tfCount = Array(MODELS + 1).fill(0);
+const tf = window.TF.slice().sort((x, y) => x.s - y.s).map(q => {
+  let opts = [1, 2, 3, 4].filter(m => tfCount[m] < 10);
+  const pref = opts.filter(m => m !== mcqModel[q.s]);
+  if (pref.length) opts = pref;
+  const m = opts.sort((a, b) => tfCount[a] - tfCount[b] || a - b)[0];
+  tfCount[m]++;
+  return { ...q, id: 'tf-' + q.s, m, tf: true, o: ['True', 'False'] };
+});
+const Q = [...mcq, ...tf];
+
+const KEY = 'db2-bank-v1';
+let S = { ans: {}, flags: {}, rev: {}, tab: '1', wrongOnly: false };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) S = Object.assign(S, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const LET = ['A', 'B', 'C', 'D'];
+const $ = id => document.getElementById(id);
+const byId = Object.fromEntries(Q.map(q => [q.id, q]));
+const inModel = m => [...mcq.filter(q => q.m == m), ...tf.filter(q => q.m == m)];
+const numOf = q => inModel(q.m).indexOf(q) + 1;
+const isRev = q => S.tab === 'f' || !!S.rev[q.m];
+const status = q => S.ans[q.id] === undefined ? 'skip' : (S.ans[q.id] === q.a ? 'ok' : 'bad');
+const scoreOf = m => inModel(m).filter(q => status(q) === 'ok').length;
+const flagSvg = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 1.5h10v13l-5-3.2-5 3.2z"/></svg>';
+const srcChip = q => !q.tf || q.k === 'o' ? `Midterm #${q.s}` : q.k === 'c' ? `#${q.s} MCQ → T/F` : `from #${q.s}`;
+const optLabel = (q, i) => q.tf ? q.o[i] : LET[i];
+
+function visible() {
+  if (S.tab === 'f') return Q.filter(q => S.flags[q.id]);
+  let l = inModel(S.tab);
+  if (S.rev[S.tab] && S.wrongOnly) l = l.filter(q => status(q) !== 'ok');
+  return l;
+}
+
+function card(q) {
+  const rev = isRev(q), my = S.ans[q.id], st = status(q), fl = !!S.flags[q.id];
+  const show = rev && (my !== undefined || S.tab === 'f');
+  const opts = q.o.map((t, i) => {
+    let c = '', mk = '';
+    if (show) { if (i === q.a) { c = 'ok'; mk = '✓'; } else if (i === my) { c = 'bad'; mk = '✗'; } else c = 'dim'; }
+    else if (i === my) c = 'sel';
+    return `<button class="opt ${c}" data-q="${q.id}" data-i="${i}" ${rev && my !== undefined ? 'disabled' : ''}><span class="let">${q.tf ? (i ? 'F' : 'T') : LET[i]}</span><span class="ot">${t}</span><span class="mk">${mk}</span></button>`;
+  }).join('');
+  let r = '';
+  if (show) {
+    const v = st === 'ok' ? '<span class="verdict ok">✓ إجابتك صح</span>'
+      : st === 'bad' ? `<span class="verdict bad">✗ إجابتك غلط، انت اخترت ${optLabel(q, my)}</span>`
+      : '<span class="verdict skip">ما جاوبتش السؤال ده</span>';
+    const why = q.why.map((w, i) => `<li class="${i === q.a ? 'ok' : 'no'}"><span class="l">${optLabel(q, i)}</span><span>${w}</span></li>`).join('');
+    r = `<div class="rev">${v}
+      <div><h4>الشرح</h4><p>${q.ex}</p></div>
+      <div><h4>الإجابة الصحيحة</h4><div class="answer">${q.tf ? q.o[q.a] : LET[q.a] + ') ' + q.o[q.a]}</div></div>
+      <div><h4>ليه كل اختيار صح أو غلط</h4><ul class="why">${why}</ul></div>
+      <details class="deep" ${fl || st === 'bad' ? 'open' : ''}><summary>شرح أعمق</summary><p>${q.deep}</p></details>
+    </div>`;
+  }
+  const label = S.tab === 'f' ? `نموذج ${q.m} · ${numOf(q)}` : numOf(q);
+  return `<article class="q ${fl ? 'is-flag' : ''}" id="q-${q.id}">
+    <div class="qhead"><span class="num">${label}</span><span class="chip">Ch${q.ch} · ${q.t}</span><span class="chip src">${srcChip(q)}</span>
+      <button class="flagbtn" data-flag="${q.id}" aria-pressed="${fl}">${flagSvg}${fl ? 'متعلّم عليه' : 'علّم عليه'}</button></div>
+    <p class="qtext" dir="ltr">${q.q}</p>
+    <div class="opts ${q.tf ? 'tf' : ''}" dir="ltr">${opts}</div>${r}</article>`;
+}
+
+function renderTabs() {
+  const nf = Object.keys(S.flags).filter(k => S.flags[k]).length;
+  let h = '';
+  for (let m = 1; m <= MODELS; m++) h += `<button class="tab" role="tab" data-tab="${m}" aria-selected="${S.tab == m}">نموذج ${m}${S.rev[m] ? `<span class="sc">${scoreOf(m)}/25</span>` : ''}</button>`;
+  h += `<button class="tab" role="tab" data-tab="f" aria-selected="${S.tab === 'f'}">المعلّم عليها <span class="cnt">(${nf})</span></button>`;
+  $('tabs').innerHTML = h;
+  if (S.tab === 'f') { $('controls').innerHTML = ''; return; }
+  const rv = !!S.rev[S.tab];
+  $('controls').innerHTML = `<div class="seg" role="group" aria-label="الوضع">
+      <button data-mode="exam" aria-pressed="${!rv}">وضع الامتحان</button>
+      <button data-mode="rev" aria-pressed="${rv}">وضع الإجابات</button></div>
+    ${rv ? `<button class="ghost" id="wrongOnly" aria-pressed="${S.wrongOnly}">اعرض الغلط بس</button>` : ''}
+    <button class="ghost" id="reset">ابدأ النموذج من جديد</button>`;
+}
+
+function renderResult() {
+  if (S.tab === 'f' || !S.rev[S.tab]) { $('result').innerHTML = ''; return; }
+  const l = inModel(S.tab), ok = l.filter(q => status(q) === 'ok');
+  const mc = ok.filter(q => !q.tf).length, t = ok.filter(q => q.tf).length;
+  const skip = l.filter(q => status(q) === 'skip').length;
+  const pct = Math.round(ok.length / l.length * 100);
+  const msg = pct >= 85 ? 'ممتاز، انت جاهز للامتحان' : pct >= 65 ? 'كويس، راجع الأسئلة الغلط وعلّم عليها' : 'محتاج مراجعة، افتح الشرح الأعمق للأسئلة الغلط';
+  $('result').innerHTML = `<div class="result"><div class="big">${ok.length}<small>/${l.length}</small></div>
+    <div class="msg">${msg}</div>
+    <div class="parts"><span>Choose: <b>${mc}/15</b></span><span>True / False: <b>${t}/10</b></span><span>النسبة: <b>${pct}%</b></span><span>غلط: <b>${l.length - ok.length - skip}</b></span>${skip ? `<span>ما اتجاوبش: <b>${skip}</b></span>` : ''}</div></div>`;
+}
+
+function renderNav() {
+  const l = S.tab === 'f' ? Q.filter(q => S.flags[q.id]) : inModel(S.tab);
+  $('nav').innerHTML = l.map((q, i) => {
+    let c = '';
+    if (isRev(q)) c = S.ans[q.id] === undefined ? '' : status(q);
+    else if (S.ans[q.id] !== undefined) c = 'ans';
+    const sep = S.tab !== 'f' && i === 15 ? '<span class="sep"></span>' : '';
+    return `${sep}<button class="${c} ${S.flags[q.id] ? 'flagged' : ''}" data-go="${q.id}" aria-label="سؤال ${numOf(q)}">${numOf(q)}</button>`;
+  }).join('');
+  $('nav').parentElement.hidden = !l.length;
+}
+
+function renderMain() {
+  const l = visible();
+  if (S.tab === 'f' && !l.length) {
+    $('main').innerHTML = `<div class="empty">لسه ما علّمتش على أي سؤال.<br>دوس "علّم عليه" جنب أي سؤال مش فاهمه، وهيظهر هنا بالإجابة والشرح الأعمق مفتوح.</div>`;
+    return;
+  }
+  if (!l.length) { $('main').innerHTML = `<div class="empty">مفيش أسئلة غلط في النموذج ده.</div>`; return; }
+  const mc = l.filter(q => !q.tf), t = l.filter(q => q.tf);
+  let h = '';
+  if (mc.length) h += `<div class="part-h"><b>Choose the correct answer</b>${S.tab === 'f' ? '' : '15 سؤال'}</div><div class="list">${mc.map(card).join('')}</div>`;
+  if (t.length) h += `<div class="part-h"><b>True or False</b>${S.tab === 'f' ? '' : '10 أسئلة'}</div><div class="list">${t.map(card).join('')}</div>`;
+  $('main').innerHTML = h;
+}
+
+function renderBar() {
+  if (S.tab === 'f') {
+    $('bar').innerHTML = `<div class="prog"><div class="t">عندك <b>${Q.filter(q => S.flags[q.id]).length}</b> سؤال متعلّم عليه للمراجعة</div></div>`;
+    return;
+  }
+  const l = inModel(S.tab), done = l.filter(q => S.ans[q.id] !== undefined).length;
+  if (S.rev[S.tab]) {
+    const ok = scoreOf(S.tab);
+    $('bar').innerHTML = `<div class="prog"><div class="t">النتيجة: <b>${ok} / ${l.length}</b></div><div class="track"><i style="width:${ok / l.length * 100}%"></i></div></div>
+      <button class="primary" data-mode="exam">ارجع لوضع الامتحان</button>`;
+  } else {
+    $('bar').innerHTML = `<div class="prog"><div class="t">جاوبت <b>${done} من ${l.length}</b></div><div class="track"><i style="width:${done / l.length * 100}%"></i></div></div>
+      <button class="primary" id="submit">سلّم وشوف النتيجة</button>`;
+  }
+}
+
+function render() { renderTabs(); renderResult(); renderNav(); renderMain(); renderBar(); }
+function refreshCard(id) {
+  const el = $('q-' + id); if (el) el.outerHTML = card(byId[id]);
+  renderNav(); renderBar(); renderResult(); renderTabs();
+}
+
+let resetArmed = null;
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tab) { S.tab = b.dataset.tab; S.wrongOnly = false; save(); render(); window.scrollTo(0, 0); return; }
+  if (b.dataset.q) {
+    const q = byId[b.dataset.q]; if (isRev(q) && S.ans[q.id] !== undefined) return;
+    S.ans[q.id] = +b.dataset.i; save(); refreshCard(q.id); return;
+  }
+  if (b.dataset.flag) {
+    const id = b.dataset.flag;
+    if (S.flags[id]) delete S.flags[id]; else S.flags[id] = true;
+    save(); if (S.tab === 'f') { renderTabs(); renderNav(); renderBar(); return; } refreshCard(id); return;
+  }
+  if (b.dataset.go) { const el = $('q-' + b.dataset.go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (b.dataset.mode) { S.rev[S.tab] = b.dataset.mode === 'rev'; S.wrongOnly = false; save(); render(); return; }
+  if (b.id === 'submit') { S.rev[S.tab] = true; save(); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (b.id === 'wrongOnly') { S.wrongOnly = !S.wrongOnly; save(); render(); return; }
+  if (b.id === 'reset') {
+    if (resetArmed) {
+      clearTimeout(resetArmed); resetArmed = null;
+      inModel(S.tab).forEach(q => delete S.ans[q.id]);
+      S.rev[S.tab] = false; S.wrongOnly = false; save(); render(); window.scrollTo(0, 0);
+    } else {
+      b.textContent = 'متأكد؟ دوس تاني عشان تمسح إجاباتك'; b.classList.add('warn');
+      resetArmed = setTimeout(() => { resetArmed = null; renderTabs(); }, 3500);
+    }
+  }
+});
+render();
+</script>
